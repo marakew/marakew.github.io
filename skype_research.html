@@ -1,0 +1,4048 @@
+<!DOCTYPE html>
+<!-- saved from url=(0029)https://habr.com/post/261725/ -->
+<html lang="ru" class="no-js fonts-loaded">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Архитектура Skype изнутри и его транспортные протоколы / Хабр</title>
+
+<link href="" rel="stylesheet" media="all">
+<style>
+
+
+html {
+    line-height: 1.15;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%
+}
+
+body {
+    margin: 0
+}
+
+article,
+aside,
+footer,
+header,
+nav,
+section {
+    display: block
+}
+
+h1 {
+    font-size: 2em;
+    margin: .67em 0
+}
+
+
+
+
+figcaption,
+figure,
+main {
+    display: block
+}
+
+figure {
+    margin: 1em 40px
+}
+
+hr {
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 0;
+    overflow: visible
+}
+
+pre {
+    font-family: monospace, monospace;
+    font-size: 1em
+}
+
+a {
+    background-color: transparent;
+    -webkit-text-decoration-skip: objects
+}
+
+abbr[title] {
+    border-bottom: none;
+    text-decoration: underline;
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted
+}
+
+b,
+strong {
+    font-weight: inherit
+}
+
+b,
+strong {
+    font-weight: bolder
+}
+
+code,
+kbd,
+samp {
+    font-family: monospace, monospace;
+    font-size: 1em
+}
+
+dfn {
+    font-style: italic
+}
+
+mark {
+    background-color: #ff0;
+    color: #000
+}
+
+small {
+    font-size: 80%
+}
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline
+}
+
+sub {
+    bottom: -.25em
+}
+
+sup {
+    top: -.5em
+}
+
+audio,
+video {
+    display: inline-block
+}
+
+audio:not([controls]) {
+    display: none;
+    height: 0
+}
+
+img {
+    border-style: none
+}
+
+svg:not(:root) {
+    overflow: hidden
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+    font-family: sans-serif;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0
+}
+
+button,
+input {
+    overflow: visible
+}
+
+button,
+select {
+    text-transform: none
+}
+
+button,
+html [type=button],
+[type=reset],
+[type=submit] {
+    -webkit-appearance: button
+}
+
+button::-moz-focus-inner,
+[type=button]::-moz-focus-inner,
+[type=reset]::-moz-focus-inner,
+[type=submit]::-moz-focus-inner {
+    border-style: none;
+    padding: 0
+}
+
+button:-moz-focusring,
+[type=button]:-moz-focusring,
+[type=reset]:-moz-focusring,
+[type=submit]:-moz-focusring {
+    outline: 1px dotted ButtonText
+}
+
+fieldset {
+    padding: .35em .75em .625em
+}
+
+legend {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    color: inherit;
+    display: table;
+    max-width: 100%;
+    padding: 0;
+    white-space: normal
+}
+
+progress {
+    display: inline-block;
+    vertical-align: baseline
+}
+
+textarea {
+    overflow: auto
+}
+
+[type=checkbox],
+[type=radio] {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0
+}
+
+[type=number]::-webkit-inner-spin-button,
+[type=number]::-webkit-outer-spin-button {
+    height: auto
+}
+
+[type=search] {
+    -webkit-appearance: textfield;
+    outline-offset: -2px
+}
+
+[type=search]::-webkit-search-cancel-button,
+[type=search]::-webkit-search-decoration {
+    -webkit-appearance: none
+}
+
+::-webkit-file-upload-button {
+    -webkit-appearance: button;
+    font: inherit
+}
+
+details,
+menu {
+    display: block
+}
+
+summary {
+    display: list-item
+}
+
+canvas {
+    display: inline-block
+}
+
+template {
+    display: none
+}
+
+[hidden] {
+    display: none
+}
+
+
+.bmenu_inner {
+    display: inline-block;
+    margin-left: 90px;
+    vertical-align: baseline
+}
+
+.bmenu__label {
+    font-size: 12px;
+    font-weight: 400;
+    color: #999
+}
+
+
+html,
+body {
+    height: 100%
+}
+
+*,
+:before,
+:after {
+    -webkit-box-sizing: inherit;
+    box-sizing: inherit
+}
+
+html {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+body {
+    color: #333;
+    font-size: 14px;
+    line-height: normal;
+    font-weight: 400;
+    font-style: normal;
+    text-rendering: optimizeLegibility;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.sticky_init .xyz_wrapper_bottom {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 300px
+}
+
+.sticky_init .xyz_wrapper_bottom.scroll-to-fixed-fixed {
+    bottom: auto
+}
+
+body .sticky_init {
+    position: static
+}
+
+img {
+    max-width: 100%
+}
+
+svg {
+    fill: currentColor;
+    stroke: inherit
+}
+
+.hidden {
+    display: none
+}
+
+.error {
+    color: red
+}
+
+.dotted {
+    border-bottom: 1px dotted
+}
+
+a {
+    color: #548eaa;
+    text-decoration: none
+}
+
+a:hover {
+    color: #487284
+}
+
+
+.column-wrapper {
+    position: relative;
+    width: 100%
+}
+
+.column-wrapper:after {
+    clear: both;
+    content: "";
+    display: table
+}
+
+.column-wrapper_post,
+.column-wrapper_post-additionals {
+    margin-bottom: 20px
+}
+
+.column-wrapper_beta {
+    padding-top: 20px
+}
+
+.column-wrapper_tabs .sidebar_right {
+    margin-top: 59px;
+    padding-top: 20px;
+    border-top: 1px solid #d5dddf
+}
+
+.column-wrapper_bottom .sidebar_right {
+    position: static;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0
+}
+
+.column-wrapper_no-sidebar-ads .sidebar_right {
+    margin-top: 149px
+}
+
+.column-wrapper_no-sidebar-ads .sidebar_right:before {
+    content: '';
+    background: #d5dddf;
+    height: 1px;
+    display: block;
+    margin: 0 0 20px
+}
+
+.column-wrapper_no-sidebar-ads .sidebar_right_stickable .sticked {
+    margin-top: -268px;
+    width: 300px
+}
+
+.column-wrapper_no-menu .sidebar_right {
+    margin-top: 89px
+}
+
+.sidebar_right_stickable .sticked {
+    position: fixed
+}
+
+.column-wrapper_bordered {
+    padding-top: 20px;
+    border-top: 1px solid #d5dddf
+}
+
+.column-wrapper_comments .comments_list {
+    padding-top: 0
+}
+
+.sidebar_right {
+    float: left;
+    margin-left: -300px;
+    width: 300px
+}
+
+.sidebar_right.sidebar_fix {
+    position: static
+}
+
+.sidebar_comments {
+    padding-top: 42px
+}
+
+.content_left {
+    float: left;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding-right: 320px;
+    width: 100%;
+    min-height: 1px
+}
+
+.content_left.wide {
+    float: none;
+    padding-right: 0;
+    width: 100%
+}
+
+.autocomplete {
+    border: 1px solid #d1d1d1;
+    background: #fff;
+    text-align: left;
+    font-size: 12px
+}
+
+.autocomplete div {
+    margin-bottom: 5px;
+    padding: 2px 5px;
+    border-bottom: 0 solid #d1d1d1;
+    color: #666;
+    cursor: pointer
+}
+
+.autocomplete div:hover {
+    background: #f0f0f0
+}
+
+.autocomplete div strong {
+    font-weight: 700
+}
+
+#global_notify,
+.global_notify {
+    margin-bottom: 20px
+}
+
+#global_notify .inner_notice,
+.global_notify .inner_notice {
+    position: relative;
+    margin: 0;
+    padding: 20px;
+    background: #d3f2c0;
+    color: #333
+}
+
+#global_notify .warning,
+.global_notify .warning {
+    background: #f38d8f;
+    color: #fff
+}
+
+#global_notify .warning a,
+.global_notify .warning a {
+    color: #fff;
+    text-decoration: underline
+}
+
+#global_notify a.close,
+.global_notify a.close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    border-bottom: 1px dashed;
+    text-align: right;
+    text-decoration: none;
+    font-size: 10px
+}
+
+
+
+.firskill__label {
+    color: #6da3bd;
+    text-decoration: none;
+    font-size: 12px
+}
+
+
+.user-pic_popover {
+    display: block;
+    margin: 0;
+    max-width: 100%;
+    height: auto;
+    border-radius: 3px
+}
+
+.user-pic_blue:before,
+.company-pic_blue:before {
+    color: #8baab5!important
+}
+
+.user-pic_green:before,
+.company-pic_green:before {
+    color: #8bb58c!important
+}
+
+.user-pic_lilac:before,
+.company-pic_lilac:before {
+    color: #a08bb5!important
+}
+
+.user-pic_pink:before,
+.company-pic_pink:before {
+    color: #b58ba9!important
+}
+
+
+.conversations-list {
+    margin-top: 21px
+}
+
+.dfp-slot {
+    background: #fff;
+    width: 100%
+}
+
+.dfp-slot_top {
+    margin-bottom: 20px
+}
+
+.dfp-slot_sticky-bottom {
+    position: relative
+}
+
+.sticky_init .dfp-slot_sticky-bottom {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 300px
+}
+
+.sticky_init .dfp-slot_sticky-bottom.scroll-to-fixed-fixed {
+    bottom: auto
+}
+
+
+
+
+
+.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1em;
+    color: #383a42;
+    background: #fafafa
+}
+
+.hljs-comment,
+.hljs-quote {
+    color: #a0a1a7;
+    font-style: italic
+}
+
+.hljs-doctag,
+.hljs-keyword,
+.hljs-formula {
+    color: #a626a4
+}
+
+.hljs-section,
+.hljs-name,
+.hljs-selector-tag,
+.hljs-deletion,
+.hljs-subst {
+    color: #e45649
+}
+
+.hljs-literal {
+    color: #0184bb
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta-string {
+    color: #50a14f
+}
+
+.hljs-built_in,
+.hljs-class .hljs-title {
+    color: #c18401
+}
+
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-type,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-number {
+    color: #986801
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-meta,
+.hljs-selector-id,
+.hljs-title {
+    color: #4078f2
+}
+
+.hljs-emphasis {
+    font-style: italic
+}
+
+.hljs-strong {
+    font-weight: 700
+}
+
+.hljs-link {
+    text-decoration: underline
+}
+
+.layout {
+    position: relative;
+    display: table;
+    min-width: 1024px;
+    width: 100%;
+    height: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    background: #fff
+}
+
+.layout_fixed {
+    table-layout: fixed
+}
+
+.layout__row {
+    display: table-row;
+    width: 100%;
+    height: 1px
+}
+
+.layout__row_navbar {
+    position: static;
+    z-index: 500;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    border-bottom: 1px solid #d5dddf;
+    background: #fff
+}
+
+.layout__row_body {
+    height: auto
+}
+
+.layout__row_promo-blocks .layout__cell {
+    margin-bottom: 30px
+}
+
+.layout__row_footer-links {
+    height: 1px;
+    background: #f9f9f9
+}
+
+.layout__row_footer {
+    height: 1px;
+    background: #edeeef
+}
+
+.layout__body_company {
+    margin-top: 20px
+}
+
+.layout__cell {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0 32px;
+    min-width: 1024px;
+    max-width: 1164px
+}
+
+.layout__cell_body {
+    padding-top: 20px;
+    padding-bottom: 60px
+}
+
+.layout__cell_promo-blocks {
+    border-top: 1px solid red
+}
+
+.layout__elevator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: none;
+    width: 60px;
+    height: 100%;
+    color: #d5dddf;
+    text-align: center
+}
+
+@media only screen and (min-width:1234px) {
+    .layout__elevator {
+        display: block
+    }
+}
+
+.layout__elevator.hidden {
+    display: none
+}
+
+.layout__elevator:hover {
+    background: #f5f7f8;
+    color: #a6b5ba
+}
+
+.layout__elevator:active {
+    background: #f5f7f8;
+    color: #7c9ca6
+}
+
+.layout__elevator.back-down .icon-svg {
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+    height: 32px
+}
+
+.layout__elevator.back-down.hidden {
+    display: block!important
+}
+
+
+
+
+
+
+.page-header {
+    height: 120px
+}
+
+.page-header_small {
+    padding: 16px 0 20px;
+    height: auto
+}
+
+.page-header_bordered {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #d5dddf
+}
+
+.page-header_tall {
+    height: 140px
+}
+
+.page-header_wrapper {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: flex-start
+}
+
+.page-header_110 {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    height: 90px
+}
+
+.page-header__info-title {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #464646;
+    font-weight: 700;
+    font-size: 18px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    line-height: 20px
+}
+
+.fonts-loaded .page-header__info-title {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif
+}
+
+.page-header__info-desc {
+    margin-top: 4px;
+    color: #343434;
+    font-size: 14px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 20px
+}
+
+.page-header__username-link {
+    color: inherit
+}
+
+.page-header__username-link+.page-header__nickname {
+    margin-left: 8px
+}
+
+.page-header__nickname {
+    position: relative;
+    padding-left: 1em;
+    color: #548eaa;
+    font-size: 14px
+}
+
+.page-header__nickname:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: '@'
+}
+
+.page-header__stats {
+    position: relative;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 84px;
+    height: 48px
+}
+
+a.page-header__stats_subscribers:hover {
+    text-decoration: none
+}
+
+.page-header__stats-value {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 100%;
+    color: #cd66cd;
+    font-size: 22px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    line-height: 22px
+}
+
+.fonts-loaded .page-header__stats-value {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif
+}
+
+.page-header__stats-value_branding {
+    display: inline-block;
+    margin-left: 8px;
+    height: auto;
+    vertical-align: top;
+    font-size: 14px
+}
+
+.page-header__stats-value_magenta {
+    color: #cd66cd
+}
+
+.page-header__stats-value_blue {
+    color: #5a85ae
+}
+
+.page-header__stats-value_green {
+    color: #6c8d00
+}
+
+.page-header__stats-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: #6f7577;
+    font-size: 12px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: normal
+}
+
+.page-header__user-data {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    vertical-align: center
+}
+
+.page-header__title {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    color: #535353;
+    font-weight: 700;
+    font-size: 22px
+}
+
+.fonts-loaded .page-header__title {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif
+}
+
+.page-header__title_main {
+    color: #777;
+    font-size: 24px
+}
+
+.page-header__title_main:hover {
+    color: #777
+}
+
+.page-header__title_flow {
+    color: #777
+}
+
+.page-header__title_flow:hover {
+    color: #777
+}
+
+.page-header__title-link {
+    color: #5b666a
+}
+
+.page-header__title-link:hover,
+.page-header__title-link:active {
+    text-decoration: none;
+    color: #548eaa
+}
+
+.page-header__form-selector {
+    position: relative
+}
+
+.page-header__title_inline,
+.page-header__form-selector {
+    width: auto
+}
+
+.page-header__arrow {
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1
+}
+
+.fonts-loaded .page-header__arrow {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif
+}
+
+.page-header__buttons {
+    margin-left: auto
+}
+
+.page-header__button+.page-header__button {
+    margin-left: 6px
+}
+
+.page-header__banner {
+    margin-top: -20px
+}
+
+.page-header__banner a {
+    display: block
+}
+
+.page-header__banner img {
+    display: block;
+    width: 100%
+}
+
+.column-wrapper_no-menu .page-header {
+    border-bottom: 1px solid #d5dddf;
+    padding-top: 28px;
+    padding-bottom: 30px;
+    margin-bottom: 20px
+}
+
+.page__body {
+    margin-bottom: 30px
+}
+
+.page__body_hubs-list,
+.page__body_users-list,
+.page__body_conversation {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding-top: 20px
+}
+
+
+.inline-bricks,
+.inline-list {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+    list-style: none
+}
+
+.inline-bricks_hubs {
+    margin-bottom: 14px
+}
+
+.inline-bricks__item,
+.inline-list__item {
+    margin: 8px 8px 0 0
+}
+
+.inline-list_comment-nav {
+    margin-left: 8px
+}
+
+.inline-list_fav-tags+.btn {
+    margin-top: 8px;
+    padding: 0 8px
+}
+
+.inline-list__item_hub {
+    margin: 0 .5em 0 0;
+    color: #5e6973;
+    font-size: 13px
+}
+
+.inline-list__item_hub:last-child {
+    margin-left: 0
+}
+
+.inline-list__item_tag {
+    margin: 0;
+    white-space: nowrap
+}
+
+.inline-list__item_tag:after {
+    color: #548eaa;
+    content: ', ';
+    margin-right: .3em
+}
+
+.inline-list__item_tag:last-child:after {
+    content: '';
+    margin-right: 0
+}
+
+.inline-list__item_tag:hover {
+    color: #548eaa
+}
+
+.inline-list__item_post-type {
+    margin: 0 8px 0 0
+}
+
+.inline-list__item_post-type:last-child {
+    margin-left: 0
+}
+
+.inline-list__item_contact-link {
+    margin: 0 22px 0 0
+}
+
+.inline-list__item_contact-link:last-child {
+    margin-left: 0
+}
+
+.inline-list__item_contact-link>a {
+    font-weight: 500;
+    font-size: 13px;
+    color: #548eaa;
+    line-height: 20px
+}
+
+.inline-bricks__item_user {
+    margin: 10px 36px 0 0
+}
+
+.inline-bricks__item_badge {
+    margin: 7px 12px 0 0
+}
+
+.inline-bricks__item_hub {
+    margin: 7px 8px 0 0
+}
+
+.inline-list__item_comment-nav {
+    margin: 0 4px 0 0;
+    line-height: 0
+}
+
+.inline-list__item-link {
+    color: inherit
+}
+
+.hub-link {
+    font-size: 13px;
+    color: #5e6973;
+    line-height: 1.5
+}
+
+.hub-link:hover {
+    color: #548eaa
+}
+
+.hub-link_subscribed {
+    color: #417505
+}
+
+.hub-link_subscribed:hover {
+    color: #346100
+}
+
+.defination-list {
+    margin: 0;
+    padding: 0;
+    list-style: none
+}
+
+.defination-list_tags {
+    margin: 0
+}
+
+.defination-list__item {
+    display: table;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 9px 0;
+    max-width: 100%;
+    width: 100%;
+    table-layout: fixed;
+    vertical-align: top;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.defination-list__item:first-child {
+    padding-top: 0
+}
+
+.defination-list__item:last-child {
+    padding-bottom: 0
+}
+
+.defination-list__item_profile_summary {
+    padding: 8px 0
+}
+
+.defination-list__label,
+.defination-list__value {
+    line-height: 21px
+}
+
+.defination-list__label {
+    display: table-cell;
+    margin-right: 20px;
+    color: #464646;
+    white-space: nowrap
+}
+
+.defination-list__label_subscribe-panel {
+    color: #444;
+    font-weight: 500;
+    font-size: 13px
+}
+
+.defination-list__label_tags {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #444;
+    font-weight: 700;
+    font-size: 14px
+}
+
+.defination-list__label_profile-summary {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-width: 130px;
+    width: 130px;
+    font-weight: 700;
+    font-size: 12px
+}
+
+.defination-list__label_profile-links {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 80px;
+    font-weight: 500;
+    font-size: 13px
+}
+
+.defination-list__label_profile-team,
+.defination-list__label_profile-stage {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-width: 220px;
+    width: 220px;
+    color: #777;
+    white-space: normal;
+    font-weight: 500;
+    font-size: 13px
+}
+
+.defination-list__value {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: table-cell;
+    overflow: hidden;
+    padding-left: 15px;
+    max-width: 100%;
+    width: 100%;
+    color: #343434;
+    vertical-align: middle;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: normal;
+    font-weight: 400;
+    font-size: 13px
+}
+
+.defination-list__value_tags {
+    padding-left: 6px
+}
+
+.defination-list__value_subscribe-panel {
+    line-height: 1;
+    padding-left: 16px
+}
+
+.defination-list__value_profile-stage {
+    padding-left: 20px;
+    font-size: 14px
+}
+
+.defination-list__value>a,
+.defination-list__link {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #548eaa;
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 13px
+}
+
+.list-snippet__title-link,
+.list-snippet__fullname {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    margin-bottom: 5px;
+    color: #444;
+    vertical-align: top;
+    font-weight: 600;
+    font-size: 15px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 18px
+}
+
+.is-subscribed .list-snippet__title-link,
+.is-subscribed .list-snippet__fullname {
+    color: #548221
+}
+
+.list-snippet__title-link:hover {
+    color: #548eaa;
+    text-decoration: none
+}
+
+.list-snippet__title-link_profiled {
+    font-size: 16px;
+    cursor: help
+}
+
+.list-snippet__username {
+    margin-bottom: 4px
+}
+
+.list-snippet__nickname {
+    position: relative;
+    padding-left: 1em;
+    color: #548eaa;
+    font-size: 14px;
+    line-height: 18px
+}
+
+.list-snippet__nickname:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: '@'
+}
+
+.list-snippet__nickname_small {
+    font-size: 13px
+}
+
+.list-snippet__nickname_small::before {
+    top: -2px
+}
+
+.list-snippet__desc,
+.list-snippet__lifetime {
+    margin-bottom: 5px;
+    color: #555;
+    font-size: 13px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 16px
+}
+
+.list-snippet__desc_feed-settings {
+    margin: 0
+}
+
+.list-snippet__label {
+    color: #888;
+    font-size: 13px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.list-snippet__tags {
+    color: #508cb1
+}
+
+.list-snippet__tags,
+.list-snippet__label,
+.list-snippet__publications-count {
+    line-height: 18px
+}
+
+.list-snippet__last-topic {
+    margin-top: 2px
+}
+
+.list-snippet__post-date,
+.list-snippet__post-title {
+    font-weight: 400;
+    font-size: 13px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 20px
+}
+
+.list-snippet__post-date {
+    color: #888
+}
+
+.list-snippet__post-title {
+    color: #508cb1;
+    font-weight: 500
+}
+
+.list-snippet__fullname,
+.list-snippet__lifetime {
+    margin-bottom: 0
+}
+
+.default-block {
+    position: relative;
+    background: #f7f7f7
+}
+
+.post_full_sandbox+.default-block {
+    margin-top: 20px
+}
+
+.default-block_promote {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #d5dddf;
+    background: 0 0
+}
+
+.default-block_bordered {
+    border: 1px solid #d5dddf;
+    background: 0 0
+}
+
+.default_block_polling {
+    border-color: #e8e8e8;
+    margin-bottom: 36px
+}
+
+.default-block_company-wjt {
+    background: 0 0
+}
+
+.default-block_company-wjt .default-block__content {
+    padding: 0;
+    min-height: 50px
+}
+
+.default-block_sidebar {
+    margin-bottom: 20px
+}
+
+.default-block_content {
+    margin-bottom: 20px
+}
+
+.default-block_toolkit {
+    position: relative;
+    width: 300px
+}
+
+.default-block_toolkit.is-relative {
+    bottom: auto;
+    position: relative
+}
+
+.default-block_toolkit.is-fixed {
+    bottom: auto;
+    position: fixed;
+    top: 20px
+}
+
+.default-block_toolkit.is-absolute {
+    bottom: 0;
+    position: absolute
+}
+
+.default-block.default-block_toolkit.sticked {
+    margin-top: 0
+}
+
+.default-block__header {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    margin: 0 20px;
+    height: 50px;
+    border-bottom: 1px solid #d5dddf
+}
+
+.default-block__header.hidden {
+    display: none
+}
+
+.default-block__header_large {
+    height: 60px
+}
+
+.default-block__header-title {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #505c66;
+    text-transform: uppercase;
+    white-space: nowrap;
+    letter-spacing: 1px;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 50px
+}
+
+.fonts-loaded .default-block__header-title {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif
+}
+
+.default-block__header-title_large {
+    letter-spacing: .8px;
+    font-size: 14px
+}
+
+.default-block__polling-header {
+    padding: 17px 20px 0
+}
+
+.default-block__polling-title {
+    font-size: 16px;
+    color: #333;
+    text-transform: none;
+    font-weight: 500;
+    line-height: 24px
+}
+
+.default-block__header-flow {
+    color: #707f84;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 500;
+    font-size: 13px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.default-block__header-flow:hover {
+    color: #548eaa
+}
+
+.default-block__content {
+    overflow: hidden;
+    padding: 0 20px
+}
+
+.default-block__content_text {
+    padding: 20px
+}
+
+.default-block__content_centered {
+    text-align: center
+}
+
+.default-block__content_polling {
+    padding: 24px 20px
+}
+
+.default-block__content_most-read,
+.default-block__content_most-comments {
+    padding-top: 10px
+}
+
+.default-block__content_promote {
+    padding: 0 0 20px;
+    height: 90px;
+    text-align: right;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
+    justify-content: flex-end
+}
+
+.default-block__content_promote-companies {
+    padding-bottom: 59px
+}
+
+.default-block__content_sidebar-note {
+    padding: 16px 20px
+}
+
+.default-block__content_profile-summary {
+    padding: 12px 20px
+}
+
+.default-block__footer {
+    margin: 0 20px;
+    height: 50px;
+    border-top: 1px solid #d5dddf;
+    white-space: nowrap;
+    line-height: 50px
+}
+
+.default-block__footer_polling {
+    border: 0;
+    font-size: 14px;
+    color: #777;
+    height: auto;
+    line-height: normal;
+    padding-bottom: 21px
+}
+
+.default-block__footer_twitter-block {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 15px 0 20px;
+    height: auto;
+    line-height: 1
+}
+
+.default-block__footer-link {
+    color: #4d80aa;
+    font-weight: 700;
+    font-size: 12px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.default-block__footer-link:hover {
+    color: #4d7284
+}
+
+.profile-section {
+    margin: 0;
+    padding: 0 0 50px
+}
+
+.profile-section__title {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: block;
+    margin-bottom: 8px;
+    color: #464646;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 20px
+}
+
+.profile-section__container {
+    margin: 0;
+    padding: 0
+}
+
+.profile-section__container+.profile-section__title {
+    margin: 30px 0 0
+}
+
+.profile-section__about-text {
+    margin: 0;
+    padding: 0 5px 0 0;
+    color: #343434;
+    font-size: 14px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 22px;
+    overflow: hidden
+}
+
+.profile-section__container_team,
+.profile-section__container_stages {
+    padding-top: 10px
+}
+
+.profile-section__invited {
+    margin: 0;
+    padding: 0;
+    color: #343434;
+    font-size: 14px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 21px
+}
+
+.profile-section__user-hub {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    padding: 0 12px;
+    height: 28px;
+    border-radius: 3px;
+    background-color: #e4eff2;
+    color: #5e6973;
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 13px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 28px
+}
+
+.profile-section__user-hub:hover {
+    background-color: #bae4ff;
+    text-decoration: none
+}
+
+.profile-section__user-hub_cross {
+    background-color: #d6ebba
+}
+
+.profile-section__user-hub_cross:hover {
+    background-color: #bade8a
+}
+
+.profile-section__link {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #4d8ea9;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.profile-section__user-badge {
+    display: inline-block;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 8px 16px;
+    height: 32px;
+    border: 1px solid #6aacd6;
+    border-radius: 18px;
+    color: #4f93c0;
+    vertical-align: middle;
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 12px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    cursor: help
+}
+
+.profile-section__show-more {
+    color: #548eaa;
+    font-size: 13px;
+    border-bottom: 1px dotted
+}
+
+.promo-block {
+    position: relative;
+    border: 1px solid #d5dddf;
+    border-radius: 4px;
+    overflow: hidden
+}
+
+.promo-block+.promo-block {
+    margin-top: 20px
+}
+
+.promo-block * {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+.promo-block_anounce {
+    margin-bottom: 20px;
+    padding: 0
+}
+
+.company_post .promo-block_vacancies {
+    margin-top: 15px
+}
+
+.promo-block_feed-settings {
+    padding: 0
+}
+
+.promo-block__header {
+    position: relative;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 20px;
+    height: 60px;
+    border-bottom: 1px solid #d5dddf;
+    background-color: #f7f7f7
+}
+
+.promo-block__header_justify {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between
+}
+
+.promo-block__header-company {
+    color: #5d9022;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif
+}
+
+.promo-block__header-company:hover {
+    color: #506f14
+}
+
+.fonts-loaded .promo-block__header-company {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif
+}
+
+.promo-block__title,
+.promo-block__title-link {
+    display: inline-block;
+    vertical-align: middle;
+    color: #505c66;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    font-weight: 700;
+    font-size: 14px
+}
+
+.fonts-loaded .promo-block__title,
+.fonts-loaded .promo-block__title-link {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif
+}
+
+.promo-block__title_total {
+    color: #000;
+    font-size: 15px;
+    line-height: 1.2em;
+    margin-bottom: 8px;
+    text-transform: none
+}
+
+.promo-block__title-link:hover {
+    color: #505c66;
+    text-decoration: none
+}
+
+.promo-block__title-img {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 12px;
+    border-radius: 2px;
+    overflow: hidden
+}
+
+.promo-block__title_lowercase,
+.promo-block__title-link_lowercase {
+    text-transform: none
+}
+
+.promo-block__title-link_announce {
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif!important
+}
+
+.promo-block__content {
+    padding: 6px 12px 12px
+}
+
+.promo-block__content_feed-settings {
+    padding: 24px 20px
+}
+
+.promo-block__footer {
+    border-top: 1px solid #d5dddf;
+    padding: 0 24px;
+    height: 52px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center
+}
+
+.promo-block__see-all {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #548eaa;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.promo-block__see-all:hover {
+    color: #4d7284
+}
+
+.promo-block__footer-link {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #6f7577;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.promo-block__footer-link+.promo-block__footer-link {
+    margin-left: 20px
+}
+
+.promo-block__footer-link_selected {
+    color: #548eaa
+}
+
+.promo-block__footer_left {
+    float: left
+}
+
+.promo-block__footer_right {
+    float: right
+}
+
+.promo-block__footer__feed-settings {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    padding: 20px;
+    height: auto;
+    border: 0;
+    line-height: 100%
+}
+
+.promo-block__footer__feed-settings .promo-block__footer_right {
+    float: none;
+    margin-left: auto
+}
+
+.promo-block__total {
+    border-top: 1px solid #d5dddf;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    min-height: 85px;
+    padding: 20px 20px 10px
+}
+
+.promo-block__decree {
+    font-size: 15px;
+    line-height: 1em
+}
+
+.promo-item {
+    position: relative;
+    padding: 7px 12px 12px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: flex-start
+}
+
+.promo-item:hover {
+    background-color: #f8f8f8;
+    border-radius: 3px
+}
+
+.promo-item:hover .promo-item__title_hovered,
+.promo-item:hover .promo-item__aside_hovered {
+    color: #548eaa
+}
+
+.promo-item__image {
+    margin: 5px 12px 0 0;
+    border-radius: 2px;
+    overflow: hidden;
+    -webkit-box-flex: 0;
+    -ms-flex: none;
+    flex: none;
+    width: 44px
+}
+
+.promo-item__title {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #444;
+    font-weight: 500;
+    font-size: 15px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 24px
+}
+
+.promo-item__aside {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding-left: 20px;
+    margin-left: auto;
+    color: #444;
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 14px;
+    -ms-flex-item-align: start;
+    align-self: flex-start;
+    text-align: right;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.promo-item__amount_rur:after {
+    content: ' в‚Ѕ'
+}
+
+.promo-item__amount_usd:after {
+    content: ' $'
+}
+
+.promo-item__amount_eur:after {
+    content: ' в‚¬'
+}
+
+.promo-item__amount_kzt:after {
+    content: '\20B8'
+}
+
+.promo-item__attrs {
+    margin: 8px 0 0;
+    line-height: 16px;
+    padding: 0;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center
+}
+
+.promo-item__attrs_toster {
+    margin: 0 0 9px
+}
+
+.promo-item__attrs-item {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #888;
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 1
+}
+
+.promo-item__attrs-item:before {
+    position: relative;
+    top: -1px;
+    margin: 0 4px;
+    color: #6b6b6b;
+    content: '\2022';
+    font-size: 10px
+}
+
+.promo-item__attrs-item:first-child:before {
+    display: none
+}
+
+.promo-item__attrs-item_nobullet {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    color: #888;
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: 8px
+}
+
+.promo-item__attrs-item_nobullet:before {
+    content: '';
+    margin: 0;
+    top: 0
+}
+
+.promo-item__attrs-item_nobullet:first-child {
+    margin: 0
+}
+
+.promo-item__attrs-img {
+    margin-right: 6px;
+    border-radius: 2px
+}
+
+
+
+.post_full.post_type-voice {
+    margin-bottom: 0;
+    min-height: auto
+}
+
+.post__wrapper_type-voice {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex
+}
+
+.post__meta {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    margin-bottom: 5px
+}
+
+.post__user-info {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center
+}
+
+.post__user-info+.post__time {
+    margin-left: 8px
+}
+
+.post__time {
+    color: #5f5f5f;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 16px
+}
+
+.post__time+.post__flow {
+    margin-left: 8px
+}
+
+.post__author-controls {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-item-align: start;
+    align-self: flex-start;
+    margin-left: auto
+}
+
+.post__flow {
+    color: #548eaa;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 16px
+}
+
+.post__flow:hover {
+    color: #487284
+}
+
+.post__title {
+    margin: 0;
+    margin-bottom: 9px
+}
+
+.post__title_full {
+    margin-bottom: 11px
+}
+
+.post__title_voice {
+    margin: 0
+}
+
+.post__title_full-post {
+    margin-bottom: 14px
+}
+
+.post__title_link {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #444;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 36.4px
+}
+
+.post__title_link:visited {
+    color: #487284
+}
+
+.post__title_link:hover {
+    color: #548eaa
+}
+
+.post__title_link:active {
+    color: #5790ac
+}
+
+.fonts-loaded .post__title_link {
+    font-family: 'Fira Sans', sans-serif
+}
+
+.post__title-text {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #343434;
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 40px
+}
+
+.fonts-loaded .post__title-text {
+    font-family: 'Fira Sans', sans-serif
+}
+
+.post__title-text_voice {
+    color: #c28d73;
+    font-size: 36px
+}
+
+.post__title-text_voice img {
+    vertical-align: middle
+}
+
+.post__translatation {
+    overflow: hidden;
+    margin-bottom: 15px;
+    padding: 6px 8px 7px;
+    max-width: 100%;
+    background-color: #f5f3f8;
+    text-overflow: ellipsis
+}
+
+.post__translatation-link {
+    color: #6864a3;
+    white-space: nowrap;
+    font-size: 13px
+}
+
+.post__translatation-link:hover {
+    color: #6864a3;
+    text-decoration: underline
+}
+
+.post__hubs+.post__marks {
+    margin-top: 7px;
+    margin-bottom: 4px
+}
+
+.post__marks:empty {
+    display: none
+}
+
+.post__type-label {
+    display: inline-block;
+    padding: 3px 8px;
+    border: 1px solid #b0b0e2;
+    border-radius: 2px;
+    color: #6667a3;
+    vertical-align: -1px;
+    font-size: 12px;
+    line-height: 16px
+}
+
+a.post__type-label:hover {
+    color: #999ad2
+}
+
+.post__type-label_md {
+    border: 1px solid #dfa687;
+    color: #c47951
+}
+
+.post__body {
+    margin-bottom: 24px
+}
+
+.post__body_full {
+    clear: both;
+    margin-bottom: 27px;
+    padding-top: 32px
+}
+
+.post__body_crop {
+    padding-top: 20px
+}
+
+.post__habracut-btn {
+    margin-top: 17px
+}
+
+.post__text {
+    overflow: hidden;
+    font-size: 16px;
+    line-height: 1.56
+}
+
+.post__tags {
+    -webkit-box-align: baseline;
+    -ms-flex-align: baseline;
+    align-items: baseline;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    margin-bottom: 0
+}
+
+.post__tags-label {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-box-flex: 0;
+    -ms-flex: none;
+    flex: none;
+    color: #444;
+    font-weight: 700;
+    font-size: 14px
+}
+
+.post__tags-list {
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    margin-left: 6px;
+    padding: 0
+}
+
+.post__tag {
+    color: #548eaa;
+    font-weight: 500;
+    font-size: 14px
+}
+
+.post__tag.fav {
+    color: #55851c
+}
+
+.post__tag_favorite {
+    color: #55851c
+}
+
+.post__text-html {
+    margin-right: -5px;
+    padding-right: 5px;
+    color: #222
+}
+
+.post__text-html h1,
+.post__text-html h2,
+.post__text-html h3,
+.post__text-html h4,
+.post__text-html h5,
+.post__text-html h6 {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    font-weight: 500
+}
+
+.post__text-html h1 code,
+.post__text-html h2 code,
+.post__text-html h3 code,
+.post__text-html h4 code,
+.post__text-html h5 code,
+.post__text-html h6 code {
+    font-weight: 500;
+    font-size: inherit;
+    font-family: 'Fira Sans', sans-serif
+}
+
+.fonts-loaded .post__text-html h1,
+.fonts-loaded .post__text-html h2,
+.fonts-loaded .post__text-html h3,
+.fonts-loaded .post__text-html h4,
+.fonts-loaded .post__text-html h5,
+.fonts-loaded .post__text-html h6 {
+    font-family: 'Fira Sans', sans-serif
+}
+
+.post__text-html h1 a,
+.post__text-html h2 a,
+.post__text-html h3 a,
+.post__text-html h4 a,
+.post__text-html h5 a,
+.post__text-html h6 a {
+    text-decoration: none
+}
+
+.post__text-html h1 a:hover,
+.post__text-html h1 a:active,
+.post__text-html h2 a:hover,
+.post__text-html h2 a:active,
+.post__text-html h3 a:hover,
+.post__text-html h3 a:active,
+.post__text-html h4 a:hover,
+.post__text-html h4 a:active,
+.post__text-html h5 a:hover,
+.post__text-html h5 a:active,
+.post__text-html h6 a:hover,
+.post__text-html h6 a:active {
+    color: #487284
+}
+
+.post__text-html h1,
+.post__text-html h2 {
+    font-size: 24px;
+    line-height: 32px
+}
+
+.post__text-html h3,
+.post__text-html h4,
+.post__text-html h5,
+.post__text-html h6 {
+    font-size: 20px;
+    line-height: 28px
+}
+
+.post__text-html a {
+    color: #548eaa;
+    text-decoration: none
+}
+
+.post__text-html a:visited {
+    color: #992298
+}
+
+.post__text-html a:hover {
+    color: #487284;
+    text-decoration: underline
+}
+
+.post__text-html hr {
+    height: 0;
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    border-bottom: 1px solid rgba(255, 255, 255, .3)
+}
+
+.post__text-html blockquote {
+    display: block;
+    margin: 12px 0;
+    padding: 18px 20px;
+    background: #fff7d7
+}
+
+.post__text-html table {
+    margin: 1.5em 0;
+    width: 100%;
+    border: 1px solid #d5dddf;
+    border-collapse: collapse
+}
+
+.post__text-html table caption {
+    text-align: left;
+    text-indent: 1em
+}
+
+.post__text-html table td,
+.post__text-html table th {
+    padding: 6px 12px 9px;
+    border: 1px solid #d5dddf;
+    vertical-align: top;
+    word-break: break-word;
+    line-height: 1.5
+}
+
+.post__text-html table td img,
+.post__text-html table th img {
+    max-width: 100%;
+    height: auto
+}
+
+.post__text-html img {
+    margin: 0;
+    vertical-align: middle
+}
+
+.post__text-html img[align=left] {
+    margin-top: 5px;
+    margin-right: 30px;
+    margin-bottom: 5px
+}
+
+.post__text-html img[align=right] {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 30px
+}
+
+.post__text-html img[data-tex] {
+    visibility: hidden
+}
+
+.post__text-html .oembed {
+    overflow: hidden
+}
+
+.post__text-html iframe {
+    max-width: 100%
+}
+
+.post__text-html br+img {
+    margin: 0
+}
+
+.post__text-html .user_link {
+    display: inline-block;
+    padding-left: 1em;
+    position: relative;
+    white-space: nowrap
+}
+
+.post__text-html .user_link:before {
+    position: absolute;
+    top: 1px;
+    left: 0;
+    color: inherit;
+    content: '@';
+    font-weight: inherit;
+    font-size: inherit;
+    line-height: 1
+}
+
+.post__text-html ul,
+.post__text-html ul ul,
+.post__text-html ul ol,
+.post__text-html ol,
+.post__text-html ol ul,
+.post__text-html ol ol {
+    margin: 0 0 0 30px;
+    padding: 0
+}
+
+.post__text-html ul li,
+.post__text-html ul ul li,
+.post__text-html ul ol li,
+.post__text-html ol li,
+.post__text-html ol ul li,
+.post__text-html ol ol li {
+    padding: 9px 0;
+    line-height: 1.6
+}
+
+.post__text-html ul li:first-child,
+.post__text-html ul ul li:first-child,
+.post__text-html ul ol li:first-child,
+.post__text-html ol li:first-child,
+.post__text-html ol ul li:first-child,
+.post__text-html ol ol li:first-child {
+    padding-top: 0
+}
+
+.post__text-html ul li:last-child,
+.post__text-html ul ul li:last-child,
+.post__text-html ul ol li:last-child,
+.post__text-html ol li:last-child,
+.post__text-html ol ul li:last-child,
+.post__text-html ol ol li:last-child {
+    padding-bottom: 0
+}
+
+.post__text-html ul {
+    list-style-type: disc
+}
+
+.post__text-html ul ul,
+.post__text-html ul ol,
+.post__text-html ol ul,
+.post__text-html ol ol {
+    margin-top: 9px
+}
+
+.post__text-html code {
+    white-space: normal;
+    font-size: 14px;
+    font-family: Menlo, Monaco, 'Courier New', monospace
+}
+
+.post__text-html pre .hljs,
+.post__text-html pre .nohighlight {
+    display: block
+}
+
+.post__text-html pre {
+    display: block;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0;
+    padding: 0;
+    word-break: break-all
+}
+
+.post__text-html pre code {
+    display: block;
+    padding: 17px 20px 20px;
+    border: 1px solid #e5e8ec;
+    background: #fbfdff;
+    white-space: pre-wrap
+}
+
+.post__text-html .spoiler .spoiler_title {
+    border-bottom: 1px dotted;
+    color: #548eaa;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer
+}
+
+.post__text-html .spoiler .spoiler_title:visited,
+.post__text-html .spoiler .spoiler_title:hover {
+    color: #487284
+}
+
+.post__text-html .spoiler:before {
+    display: block;
+    float: left;
+    margin-top: 4px;
+    width: 16px;
+    height: 16px;
+    border: 0 solid red;
+    background: url(https://dr.habracdn.net/habrcom/images/1532702457/spoiler.icon.png) no-repeat left top;
+    content: ' '
+}
+
+.post__text-html .spoiler .spoiler_text {
+    display: inline;
+    overflow: hidden;
+    margin-top: 10px;
+    padding: 10px
+}
+
+.post__text-html .spoiler.spoiler_open:before {
+    background: url(https://dr.habracdn.net/habrcom/images/1532702457/spoiler.icon.png) no-repeat left bottom
+}
+
+.post__text-html p {
+    margin: 0;
+    padding: 0
+}
+
+.post__text-html abbr {
+    border-bottom: 1px dotted #343434;
+    text-decoration: none;
+    cursor: help
+}
+
+.post-additionals {
+    margin-bottom: 32px
+}
+
+.post-additionals_company {
+    margin-top: 14px
+}
+
+.post-additionals__warning {
+    color: #555;
+    font-size: 15px;
+    line-height: 20px;
+    margin: 0
+}
+
+.send_invite_wrapper,
+.publish_wrapper,
+.reject_wrapper,
+.transfer_wrapper {
+    margin-right: 12px
+}
+
+.send_invite_wrapper:last-child,
+.publish_wrapper:last-child,
+.reject_wrapper:last-child,
+.transfer_wrapper:last-child {
+    margin-right: 0
+}
+
+.post-info {
+    padding: 9px 0 16px
+}
+
+.post-info__date {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    margin-bottom: 4px;
+    color: #8d8d8d;
+    vertical-align: top;
+    font-weight: 500;
+    font-size: 13px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.post-info__title {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    width: 100%;
+    color: #444;
+    vertical-align: top;
+    white-space: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px
+}
+
+.fonts-loaded .post-info__title {
+    font-weight: 500;
+    font-family: 'Fira Sans', sans-serif
+}
+
+a.post-info__title:visited,
+.post-info__title-link:visited {
+    color: #4d7284
+}
+
+a.post-info__title:hover,
+.post-info__title-link:hover {
+    color: #548eaa;
+    text-decoration: none
+}
+
+a.post-info__title:active,
+.post-info__title-link:active {
+    color: #4d7284
+}
+
+.post-info__title_large {
+    font-size: 16px;
+    line-height: 28px
+}
+
+.post-info__title-link {
+    color: inherit
+}
+
+.post-info__meta {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    margin: 9px 0 2px
+}
+
+.post-info__meta-item {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start
+}
+
+a.post-info__meta-item {
+    text-decoration: none
+}
+
+a.post-info__meta-item:hover .post-info__meta-counter,
+a.post-info__meta-item:hover .post-info__meta-icon {
+    color: #548eaa
+}
+
+.post-info__meta-icon {
+    margin-right: 8px;
+    color: #82a3b1;
+    font-size: 0
+}
+
+.post-info__meta-counter {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 62px;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+    max-width: 100%;
+    color: #82a3b1;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.post-info__meta-counter_small {
+    width: 52px
+}
+
+.post-info__project-label {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 11px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.post-info__project-label:hover {
+    text-decoration: none
+}
+
+.post-info__project-label_habr {
+    border-color: #80a1b0;
+    color: #80a1b0
+}
+
+.post-info__project-label_gt {
+    border-color: #8390b7;
+    color: #8390b7
+}
+
+
+
+.default-image {
+    display: block;
+    line-height: 1
+}
+
+.default-image_inline {
+    display: inline-block
+}
+
+.default-image_small>.icon-svg {
+    width: 36px;
+    height: 36px
+}
+
+.default-image_medium>.icon-svg {
+    width: 48px;
+    height: 48px
+}
+
+.default-image_hub {
+    color: #82a3b1
+}
+
+.default-image_company {
+    color: #6da3bd
+}
+
+.default-image_user {
+    color: #82a3b1
+}
+
+.default-image_blue {
+    color: #8baab5
+}
+
+.default-image_green {
+    color: #8bb58c
+}
+
+.default-image_lilac {
+    color: #a08bb5
+}
+
+.default-image_pink {
+    color: #b58ba9
+}
+
+
+
+.table-grid {
+    display: table;
+    width: 100%;
+    border-collapse: separate;
+    table-layout: fixed
+}
+
+.table-grid__item {
+    display: table-cell;
+    vertical-align: top
+}
+
+.table-grid__item_left {
+    min-width: 100%
+}
+
+.table-grid__item_right {
+    width: 200px;
+    text-align: right
+}
+
+
+
+.footer {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    height: 54px
+}
+
+.footer__link {
+    color: #548eaa;
+    font-weight: 700;
+    font-size: 12px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.footer__link:hover {
+    color: #4d7284
+}
+
+.footer__copyright {
+    color: #464646;
+    font-size: 13px
+}
+
+.footer__logo {
+    display: block;
+    height: 32px;
+    left: 0;
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+    width: 32px
+}
+
+.footer-grid {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0
+}
+
+.footer-grid_menu {
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    padding-bottom: 20px
+}
+
+.footer-grid__item {
+    margin-left: 20px;
+    width: 180px
+}
+
+.footer-grid__item:first-child {
+    margin-left: 0
+}
+
+.footer-grid__item_300 {
+    width: 300px
+}
+
+.footer-grid__item_380 {
+    width: 380px
+}
+
+.footer-grid__item_copyright {
+    margin-right: 28px;
+    padding-left: 42px;
+    position: relative
+}
+
+.footer-grid__item_link {
+    margin: 0 40px 0 0;
+    width: auto
+}
+
+.footer-grid__item_social {
+    margin-left: 182px;
+    width: auto
+}
+
+.footer-block__title {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding: 0;
+    margin: 0;
+    height: 50px;
+    border-bottom: 1px solid #d5dddf;
+    color: #464646;
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif;
+    line-height: 50px
+}
+
+.footer-block__content {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 4px 0 0
+}
+
+.footer-block__content_apps {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    padding: 15px 0 0;
+    vertical-align: top
+}
+
+.footer-menu {
+    margin: 0;
+    padding: 0;
+    list-style: none
+}
+
+.footer-menu__item {
+    font-family: "-apple-system", BlinkMacSystemFont, Arial, sans-serif
+}
+
+.footer-menu__item-link {
+    color: #548eaa;
+    white-space: nowrap;
+    font-size: 13px;
+    line-height: 30px
+}
+
+.footer-menu__item-link:hover {
+    color: #4d7284
+}
+
+.footer-menu__app {
+    display: block;
+    margin-right: 10px;
+    color: #000
+}
+
+.footer-menu__app:last-child {
+    margin-right: 0
+}
+
+.footer-menu__app:hover {
+    color: #000;
+    text-decoration: none
+}
+
+.webui-popover-content {
+    display: none
+}
+
+.webui-popover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    display: none;
+    min-width: 50px;
+    min-height: 32px;
+    text-align: left;
+    white-space: normal;
+    background: 0 0
+}
+
+.webui-popover .popover {
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #efefef;
+    border-radius: 4px;
+    overflow: auto
+}
+
+.webui-popover.top,
+.webui-popover.top-left,
+.webui-popover.top-right {
+    margin-top: -10px
+}
+
+.webui-popover.right,
+.webui-popover.right-top,
+.webui-popover.right-bottom {
+    margin-left: 10px
+}
+
+.webui-popover.bottom,
+.webui-popover.bottom-left,
+.webui-popover.bottom-right {
+    margin-top: 10px
+}
+
+.webui-popover.left,
+.webui-popover.left-top,
+.webui-popover.left-bottom {
+    margin-left: -10px
+}
+
+.webui-popover.pop {
+    -webkit-transform: scale(.8);
+    transform: scale(.8);
+    -webkit-transition: transform .15s cubic-bezier(.3, 0, 0, 1.5);
+    -webkit-transition: -webkit-transform .15s cubic-bezier(.3, 0, 0, 1.5);
+    transition: -webkit-transform .15s cubic-bezier(.3, 0, 0, 1.5);
+    transition: transform .15s cubic-bezier(.3, 0, 0, 1.5);
+    transition: transform .15s cubic-bezier(.3, 0, 0, 1.5), -webkit-transform .15s cubic-bezier(.3, 0, 0, 1.5);
+    opacity: 0;
+    filter: alpha(opacity=0)
+}
+
+.webui-popover.pop-out {
+    -webkit-transition-property: "opacity,transform";
+    transition-property: "opacity,transform";
+    -webkit-transition: .15s linear;
+    transition: .15s linear;
+    opacity: 0;
+    filter: alpha(opacity=0)
+}
+
+.webui-popover.fade,
+.webui-popover.fade-out {
+    -webkit-transition: opacity .15s linear;
+    transition: opacity .15s linear;
+    opacity: 0;
+    filter: alpha(opacity=0)
+}
+
+.webui-popover.out {
+    opacity: 0;
+    filter: alpha(opacity=0)
+}
+
+.webui-popover.in {
+    -webkit-transform: none;
+    transform: none;
+    opacity: 1;
+    filter: alpha(opacity=100)
+}
+
+.webui-popover .webui-popover-content {
+    padding: 9px 14px;
+    overflow: auto;
+    display: block
+}
+
+.webui-popover-inner .close {
+    font-family: arial;
+    margin: 8px 10px 0 0;
+    float: right;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 16px;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .2;
+    filter: alpha(opacity=20);
+    text-decoration: none
+}
+
+.webui-popover-inner .close:hover,
+.webui-popover-inner .close:focus {
+    opacity: .5;
+    filter: alpha(opacity=50)
+}
+
+.webui-popover-inner .close:after {
+    content: "\00D7";
+    width: .8em;
+    height: .8em;
+    padding: 4px;
+    position: relative
+}
+
+.webui-popover-title {
+    padding: 8px 14px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 18px;
+    background-color: #fff;
+    border-bottom: 1px solid #f2f2f2;
+    border-radius: 5px 5px 0 0
+}
+
+.webui-popover-content {
+    padding: 9px 14px;
+    display: none
+}
+
+.webui-popover-inverse {
+    background-color: #333;
+    color: #eee
+}
+
+.webui-popover-inverse .webui-popover-title {
+    background: #333;
+    border-bottom: 1px solid #3b3b3b;
+    color: #eee
+}
+
+.webui-no-padding .webui-popover-content {
+    padding: 0
+}
+
+.webui-no-padding .list-group-item {
+    border-right: none;
+    border-left: none
+}
+
+.webui-no-padding .list-group-item:first-child {
+    border-top: 0
+}
+
+.webui-no-padding .list-group-item:last-child {
+    border-bottom: 0
+}
+
+.webui-popover>.webui-arrow,
+.webui-popover>.webui-arrow:after {
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid
+}
+
+.webui-popover>.webui-arrow {
+    border-width: 11px
+}
+
+.webui-popover>.webui-arrow:after {
+    border-width: 10px;
+    content: ""
+}
+
+.webui-popover.top>.webui-arrow,
+.webui-popover.top-right>.webui-arrow,
+.webui-popover.top-left>.webui-arrow {
+    bottom: -11px;
+    left: 50%;
+    margin-left: -11px;
+    border-top-color: #999;
+    border-top-color: rgba(0, 0, 0, .25);
+    border-bottom-width: 0
+}
+
+.webui-popover.top>.webui-arrow:after,
+.webui-popover.top-right>.webui-arrow:after,
+.webui-popover.top-left>.webui-arrow:after {
+    content: " ";
+    bottom: 1px;
+    margin-left: -10px;
+    border-top-color: #fff;
+    border-bottom-width: 0
+}
+
+.webui-popover.right>.webui-arrow,
+.webui-popover.right-top>.webui-arrow,
+.webui-popover.right-bottom>.webui-arrow {
+    top: 50%;
+    left: -11px;
+    margin-top: -11px;
+    border-left-width: 0;
+    border-right-color: #999;
+    border-right-color: rgba(0, 0, 0, .25)
+}
+
+.webui-popover.right>.webui-arrow:after,
+.webui-popover.right-top>.webui-arrow:after,
+.webui-popover.right-bottom>.webui-arrow:after {
+    content: " ";
+    left: 1px;
+    bottom: -10px;
+    border-left-width: 0;
+    border-right-color: #fff
+}
+
+.webui-popover.bottom>.webui-arrow,
+.webui-popover.bottom-right>.webui-arrow,
+.webui-popover.bottom-left>.webui-arrow {
+    top: -11px;
+    left: 50%;
+    margin-left: -11px;
+    border-bottom-color: #999;
+    border-bottom-color: rgba(0, 0, 0, .25);
+    border-top-width: 0
+}
+
+.webui-popover.bottom>.webui-arrow:after,
+.webui-popover.bottom-right>.webui-arrow:after,
+.webui-popover.bottom-left>.webui-arrow:after {
+    content: " ";
+    top: 1px;
+    margin-left: -10px;
+    border-bottom-color: #fff;
+    border-top-width: 0
+}
+
+.webui-popover.left>.webui-arrow,
+.webui-popover.left-top>.webui-arrow,
+.webui-popover.left-bottom>.webui-arrow {
+    top: 50%;
+    right: -11px;
+    margin-top: -11px;
+    border-right-width: 0;
+    border-left-color: #999;
+    border-left-color: rgba(0, 0, 0, .25)
+}
+
+.webui-popover.left>.webui-arrow:after,
+.webui-popover.left-top>.webui-arrow:after,
+.webui-popover.left-bottom>.webui-arrow:after {
+    content: " ";
+    right: 1px;
+    border-right-width: 0;
+    border-left-color: #fff;
+    bottom: -10px
+}
+
+.webui-popover-inverse.top>.webui-arrow,
+.webui-popover-inverse.top-left>.webui-arrow,
+.webui-popover-inverse.top-right>.webui-arrow,
+.webui-popover-inverse.top>.webui-arrow:after,
+.webui-popover-inverse.top-left>.webui-arrow:after,
+.webui-popover-inverse.top-right>.webui-arrow:after {
+    border-top-color: #333
+}
+
+.webui-popover-inverse.right>.webui-arrow,
+.webui-popover-inverse.right-top>.webui-arrow,
+.webui-popover-inverse.right-bottom>.webui-arrow,
+.webui-popover-inverse.right>.webui-arrow:after,
+.webui-popover-inverse.right-top>.webui-arrow:after,
+.webui-popover-inverse.right-bottom>.webui-arrow:after {
+    border-right-color: #333
+}
+
+.webui-popover-inverse.bottom>.webui-arrow,
+.webui-popover-inverse.bottom-left>.webui-arrow,
+.webui-popover-inverse.bottom-right>.webui-arrow,
+.webui-popover-inverse.bottom>.webui-arrow:after,
+.webui-popover-inverse.bottom-left>.webui-arrow:after,
+.webui-popover-inverse.bottom-right>.webui-arrow:after {
+    border-bottom-color: #333
+}
+
+.webui-popover-inverse.left>.webui-arrow,
+.webui-popover-inverse.left-top>.webui-arrow,
+.webui-popover-inverse.left-bottom>.webui-arrow,
+.webui-popover-inverse.left>.webui-arrow:after,
+.webui-popover-inverse.left-top>.webui-arrow:after,
+.webui-popover-inverse.left-bottom>.webui-arrow:after {
+    border-left-color: #333
+}
+
+.webui-popover i.icon-refresh:before {
+    content: ""
+}
+
+.webui-popover i.icon-refresh {
+    display: block;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    margin-left: -15px;
+    margin-right: -15px
+}
+
+@-webkit-keyframes rotate {
+    to {
+        -webkit-transform: rotate(360deg)
+    }
+}
+
+@keyframes rotate {
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg)
+    }
+}
+
+.webui-popover-backdrop {
+    background-color: rgba(0, 0, 0, .65);
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9998
+}
+
+.webui-popover .dropdown-menu {
+    display: block;
+    position: relative;
+    top: 0;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    float: none
+}
+
+
+.page__footer {
+    margin-top: 40px
+}
+
+
+
+
+</style>
+
+</head>
+<body class="nl">
+<div class="layout">
+<div class="layout__row layout__row_body">
+<div class="layout__cell layout__cell_body">
+<section class="column-wrapper column-wrapper_post js-sticky-wrapper">
+<div class="content_left js-content_left">
+<article class="post post_full">
+<div class="post__wrapper">
+<h1 class="post__title post__title_full">
+	<span class="post__title-text">Архитектура Skype изнутри и его транспортные протоколы</span>
+</h1>
+
+<div class="post__body post__body_full">
+<div data-io-article-url="https://habr.com/post/261725/" class="post__text post__text-html">Небольшое замечание. Я знаком со всеми докладами по анализу протокола Skype. Знаю о skypeopensource, знаю о проекте француза FakeSkype и т.д. <br>
+<br>
+Подходы мне не понравились.<br>
+<br>
+Какие-то данные<br>
+Какие-то результаты<br>
+Где-то что-то<br>
+Как-то отправить и что-то получить<br>
+Это не мой путь<br>
+<br>
+Для меня реверс инжиниринг — это однозначный ответ на вопрос, а не угадывание каких-то значений или изучение сетевых пакетов. Поэтому предлагаю другой взгляд и анализ. Расскажу, как я прошел его с самого начала. В статье не будет исходников и не будет полного описание протокола. Так же я не буду ни опровергать, ни подтверждать схожую информацию с других источников. Для себя я смог полностью разобрать транспортный сетевой уровень Skype и криптографию, но публиковать не буду по соответствующим соображениям. <br>
+<a name="habracut"></a><br>
+Итак, свой реверс инжиниринг я начал не с загрузки последней версии Skype в дизассемблер или отладчик, а с поиска и изучения его первых версий и истории создания. Воспользовавшись web.archve.org, заглянул на сайт skype.com в прошлом, удалось скачать почти первую и очень старую версию 0.9.x. skype, в последствии для изучения были скачаны все доступные версии под все платформы в веб-архиве. Не забыл и о skypekit sdk window/linux, которым делились добрые люди, начиная от старых 2.0 версии, включая последние доступные.<br>
+<br>
+При изучении истории Skype часто упоминалась компания <a href="http://www.joltid.com/">joltid ltd</a>. Ну что же, вбив адрес в web.arhive.org, изучил и скачал все с раздела download. Но история ребят, которые создали Skype, говорит, что одним из первых их продуктом была программа KaZaA, которая позволяла в сети p2p обмениваться файлами. Существовал так же открытый плагин-клиент giFT-FastTrack для сети KaZaA, который в далеком ~2000 году удалось создать энтузиастам, используя реверс инжиниринг. Он легко ищется в google, поэтому скачал и его.<br>
+<br>
+Так же в поле зрения попал один из проектов skype — anthill, в последствии переименовавшийся в joost. Это был online p2p tv, который не набрал популярности и прекратил существование. Но меня интересовала не его история, а, конечно же, софт. С помощью web.arhive.org и google были найдены некоторые программы-плагины под win и macosx.<br>
+<br>
+Не обошли внимание и модули SFA(Skype For Asterisk).<br>
+<br>
+Ну, что же, вся информация собрана, буду анализировать.<br>
+<br>
+Известно, что Skype тщательно шифровала свои продукты. Используя мемори дамперы, с легкостью снимаем защиту. Запускать я ничего не собираюсь, а для статического анализа в IDA этого достаточно.<br>
+<br>
+В эволюции шифрования своих бинарников skype изменилась лишь слегка, а именно — если где-то до второй версии Skype был однообразный ксор рекурсивный проход, то где-то после второй добавили еще и упаковку.<br>
+<br>
+Дальнейшее изучения перешло в хекс просмотрщик. Что в нём можно изучать, спросите вы? Конечно же, текстовые строки, которые содержатся в программах. В некоторых современных skype клиентах обфусцированы даже они. Но в старых версиях бинарок обнаружилась не только чистые строки, но и не отключенная rtti информация о С++ классах. Да-да, ядро skype написано целиком на С++. Это позволило выстроить взаимосвязь отдельных модулей по их названию. Оставленная информация в текстовых отладочных сообщениях тоже сильно упрощает весь процесс реверс-инжиниринга.<br>
+<br>
+Изучая версию за версией бинарок skype, хотелось найти такой бинарный модуль, где оптимизатор поработал меньше всего, чтобы даже inline функции, которые использовались в исходном коде, не развернулись бы. И такие бинарники были найдены, и не один.<br>
+<br>
+Итак, вся архитектура skype — это модули, функции которых выполняются в основном потоке класса Backbone. Сам класс Backbone наследуется от класса Thread. В самом Backbone объявлен интерфейс класса Module, который имеет с десяток обработчиков для обработки рассылок каких то данных.<br>
+<br>
+В итоге выстраивается такая архитектура, покажу очень упрощенно.<br>
+<br>
+<div class="spoiler">
+<b class="spoiler_title">псевдокод</b>
+<div class="spoiler_text">
+<pre><code class="hljs cs"><span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">Thread</span></span>
+{
+	<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">virtual</span></span></span><span class="hljs-function"> </span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">Run</span></span></span><span class="hljs-function">(</span><span class="hljs-params"></span><span class="hljs-function"><span class="hljs-params"></span>) </span></span>= <span class="hljs-number"><span class="hljs-number">0</span></span>;
+};
+
+<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">Backbone</span></span> : <span class="hljs-title"><span class="hljs-title">public</span></span> <span class="hljs-title"><span class="hljs-title">Thread</span></span>
+{
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">Module</span></span>
+	{
+		<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">virtual</span></span></span><span class="hljs-function"> </span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">handler_1</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> *ev</span></span></span><span class="hljs-function">) </span></span>{};
+		<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">virtual</span></span></span><span class="hljs-function"> </span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">handler_2</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> *ev</span></span></span><span class="hljs-function">) </span></span>{};
+		<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">virtual</span></span></span><span class="hljs-function"> </span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">handler_3</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> *ev</span></span></span><span class="hljs-function">) </span></span>{};
+		<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">virtual</span></span></span><span class="hljs-function"> </span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">handler_4</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> *ev</span></span></span><span class="hljs-function">) </span></span>{};
+		....
+
+		<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">registerModule</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-function"><span class="hljs-params">Backbone *</span></span></span><span class="hljs-function">)</span></span>;
+		<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">unregisterModule</span></span></span><span class="hljs-function">(</span><span class="hljs-params"></span><span class="hljs-function"><span class="hljs-params"></span>)</span></span>;
+
+		<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">addCallbackFunction</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> (Module::*</span></span></span><span class="hljs-function">)(</span><span class="hljs-params"></span><span class="hljs-function"><span class="hljs-params"></span>))</span></span>;
+		
+	};
+
+	list&lt;Module*&gt; ModuleList;
+
+	<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">AddModule</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-function"><span class="hljs-params">Module *m</span></span></span><span class="hljs-function">) </span></span>{ ModuleList.add(m); }
+
+	<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">Notify_1</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> *ev</span></span></span><span class="hljs-function">)	</span></span>{ <span class="hljs-keyword"><span class="hljs-keyword">for</span></span> (i=<span class="hljs-number"><span class="hljs-number">0</span></span>;i&lt;ModuleList.size();++i) ModuleList[i].handler_1(ev); }
+	<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">Notify_2</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> *ev</span></span></span><span class="hljs-function">)	</span></span>{ <span class="hljs-keyword"><span class="hljs-keyword">for</span></span> (i=<span class="hljs-number"><span class="hljs-number">0</span></span>;i&lt;ModuleList.size();++i) ModuleList[i].handler_2(ev); }
+	<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">Notify_3</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> *ev</span></span></span><span class="hljs-function">)	</span></span>{ <span class="hljs-keyword"><span class="hljs-keyword">for</span></span> (i=<span class="hljs-number"><span class="hljs-number">0</span></span>;i&lt;ModuleList.size();++i) ModuleList[i].handler_3(ev); }
+	<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">Notify_4</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">void</span></span></span></span><span class="hljs-function"><span class="hljs-params"> *ev</span></span></span><span class="hljs-function">)	</span></span>{ <span class="hljs-keyword"><span class="hljs-keyword">for</span></span> (i=<span class="hljs-number"><span class="hljs-number">0</span></span>;i&lt;ModuleList.size();++i) ModuleList[i].handler_4(ev); }
+	...
+
+	<span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">Run</span></span></span><span class="hljs-function">(</span><span class="hljs-params"></span><span class="hljs-function"><span class="hljs-params"></span>)
+	</span></span>{
+		<span class="hljs-keyword"><span class="hljs-keyword">while</span></span>(!Quit)
+		{
+			<span class="hljs-comment"><span class="hljs-comment">//цикл обработки всех callback функций модулей в списке</span></span>
+
+			<span class="hljs-comment"><span class="hljs-comment">//пулинг сетевой системы, прием данных в буферы с сокетов,</span></span>
+			<span class="hljs-comment"><span class="hljs-comment">//	 отправка данных с буфера в сокеты.</span></span>
+		}
+	}
+};
+</code></pre><br>
+</div></div><br>
+Изучение текстовых строк в Skype и других его проектах показало, что имя папочки Joltid непосредственно фигурирует в проектах Skype, но некоторые остальные файлы вынесены «за скобки». В проекте Anthill(Joost) папочка Joltid вынесена на уровень выше.<br>
+<br>
+<blockquote>«c:\slave1\win-production\anthill\joltid\gi\general\backbone\InternetConnection.hpp»<br>
+«c:\slave1\win-production\anthill\anthill\transceiver/transceiver.hpp»<br>
+«c:\slave1\win-production\anthill\anthill\..\joltid\GI\General\Backbone/Backbone.hpp»<br>
+</blockquote><br>
+А наследование классов в skype и anthill идет от класса Backbone. Значит, делаю предположение, что есть какая-то общая технология, которую используют исследуемые продукты.<br>
+<br>
+В конструкторе класса Backbone можно обнаружить много модулей, которые осуществляют свою регистрацию.<br>
+<br>
+<div class="spoiler"><b class="spoiler_title">псевдокод</b><div class="spoiler_text"><pre><code class="hljs mipsasm">	class APIEventManager : public <span class="hljs-keyword"><span class="hljs-keyword">Backbone::Module
+</span></span>	{
+		...
+	}<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+
+	class Router : public <span class="hljs-keyword"><span class="hljs-keyword">Backbone::Module
+</span></span>	{
+		...
+	}<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+
+	class InternetConnection : public <span class="hljs-keyword"><span class="hljs-keyword">Backbone::Module
+</span></span>	{
+		...
+	}<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+
+	class FallbackConnManager : public <span class="hljs-keyword"><span class="hljs-keyword">Backbone::Module
+</span></span>	{
+		...
+	}<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+
+	class RelayConnectionManager : public <span class="hljs-keyword"><span class="hljs-keyword">Backbone::Module
+</span></span>	{
+		...
+	}<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+<span class="hljs-symbol"><span class="hljs-symbol">
+	Backbone:</span></span>:<span class="hljs-keyword"><span class="hljs-keyword">Backbone()
+</span></span>	{
+		<span class="hljs-keyword"><span class="hljs-keyword">AddModule(new </span></span>APIEventManager)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+		<span class="hljs-keyword"><span class="hljs-keyword">AddModule(new </span></span>Router)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+		<span class="hljs-keyword"><span class="hljs-keyword">AddModule(new </span></span>InternetConnection)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+		<span class="hljs-keyword"><span class="hljs-keyword">AddModule(new </span></span>FallbackConnManager)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+		<span class="hljs-keyword"><span class="hljs-keyword">AddModule(new </span></span>RelayConnectionManager)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+
+		... итд весь список публиковать не буду
+	}<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+</code></pre><br>
+</div></div><br>
+Похоже, модули в конструкторе и создают саму технологию Joltid, которая позволяет выстроить p2p-распределенную сеть для передачи любого вида цифровых данных. А унаследовав Backbone, можно разрабатывать любые продукты, которые используют p2p построение сети.<br>
+<br>
+В проекте anthill в первых версиях в классе наследнике добавляется всего один модуль Transmitter. Который по всей видимости отвечает за трансляцию и прием медиа данных. А вот в проекте Skype в классе наследнике SkyBackbone модулей около десятка. А в новых версиях Skype и того больше. Логично, у Skype функциональность побольше, Авторизация, Чат, Пересылка файлов и т.д. Но меня интересовало самая основа Skype, его взаимодействие с сетью и криптография.<br>
+<br>
+Изучая в хекс редакторе во всех проектах просматривался некий модуль CommLayer, его сообщений вместе с ключевыми словами TCP и UDP было больше всего. <br>
+<br>
+<blockquote>«CommLayer: Deleting packet #%04x»<br>
+«CommLayer: Ack to #%04x»<br>
+«CommLayer: Sending user packet #%u over TCP #%u. len=%u»<br>
+«CommLayer: %sending packet #%04x to %s using TCP»<br>
+«CommLayer: %sending packet #%04x to %s using UDP»<br>
+</blockquote><br>
+<br>
+Значит, этот модуль как-то отвечает или взаимодействует с сетью.<br>
+<br>
+Анализируя наследие классов в оставленном rtti, получил некую структуру:<br>
+<br>
+<pre><code class="hljs cs"><span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">CommLayer</span></span>
+{
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">ConnectionListener</span></span>;
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">CommandListener</span></span>;
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">Transport</span></span>;
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">TCPConnection</span></span>;
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">UDPTransport</span></span>;
+};
+</code></pre><br>
+Так же в rtti были найдены классы для работы с сетью, class Connection, class UDPConnection, которые при изучении наследования подсказали, что наследники ведут всего в два класса.<br>
+<br>
+Первый — это CommLayer. А второй — FELayer, который, кстати, не входит в модуль Backbone. Значит, не является основой p2p сети skype, но тем не менее для чего то нужен. Отлично, посмотрим в rtti и на него:<br>
+<br>
+<pre><code class="hljs cs"><span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">FELayer</span></span>
+{
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">PacketListener</span></span>;
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">ConnectionListener</span></span>;
+	<span class="hljs-keyword"><span class="hljs-keyword">class</span></span> <span class="hljs-title"><span class="hljs-title">Conn</span></span>;
+};
+</code></pre><br>
+Значит, есть как минимум два класса для работы с сетевой частью. Осталось разобраться с ними, какие данные они передают, какие принимают. И где же наконец-то используется всеми известная криптография rc4/aes/rsa/dh.<br>
+<br>
+Грузим в IDA поочередно разные бинанарки skype и его продуктов и изучаем. Идентифицируем общеизвестные алгоритмы md5/sha1/sha2/aes, помечаем функции. А вот rsa не видно, но не беда, rsa строится на bignum. Более пристальный анализ <br>
+и можно с легкостью опознать bignum, а с ним и остальной rsa. У Skype своя реализация bignum/rsa.<br>
+<br>
+Как оказалось, Diffie-Hellman в первых версиях Skype не было, его добавили чуть позже, где-то после 1.3.x версии Skype.<br>
+<br>
+Анализируя бинарки часто встречается число 69069 (0x10dcd), используя гугл находим — это random, а вот смещение "+17009" (0x4271) немного не стандартное, но не беда. Рандом так рандом. Так же эти константы обнаружились и в giFT-FastTrack.<br>
+<br>
+<pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">static</span></span></span><span class="hljs-function"> </span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">unsigned</span></span></span><span class="hljs-function"> </span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">int</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">seed_step</span></span></span><span class="hljs-function"> </span><span class="hljs-params"><span class="hljs-function"><span class="hljs-params">(</span></span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">unsigned</span></span></span></span><span class="hljs-function"><span class="hljs-params"> </span></span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">int</span></span></span></span><span class="hljs-function"><span class="hljs-params"> seed)</span></span></span><span class="hljs-function"> </span></span>{
+        <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> <span class="hljs-number"><span class="hljs-number">0x10dcd</span></span> * seed + <span class="hljs-number"><span class="hljs-number">0x4271</span></span>;
+}
+</code></pre><br>
+Можно сказать что данный рандом уникальный для всех skype продуктов ( joltid ?)<br>
+<br>
+Особое внимание обращает на себя какая-то странная упаковка чисел. При изучении была найдена в sdk skypekit.<br>
+<br>
+BinProtocolClientDecoder.java:<br>
+<br>
+<pre><code class="hljs nimrod">public <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> decodeUint() throws <span class="hljs-type"><span class="hljs-type">IOException</span></span> {
+        <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> shift = <span class="hljs-number"><span class="hljs-number">0</span></span>;
+        <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> <span class="hljs-literal"><span class="hljs-literal">result</span></span> = <span class="hljs-number"><span class="hljs-number">0</span></span>;
+        <span class="hljs-keyword"><span class="hljs-keyword">while</span></span> (<span class="hljs-literal"><span class="hljs-literal">true</span></span>) {
+                <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> value = mTransport.readByte() &amp; <span class="hljs-number"><span class="hljs-number">0xFF</span></span>;
+                <span class="hljs-literal"><span class="hljs-literal">result</span></span> = <span class="hljs-literal"><span class="hljs-literal">result</span></span> | ((value &amp; <span class="hljs-number"><span class="hljs-number">0x7f</span></span>) &lt;&lt; shift);
+                shift = shift + <span class="hljs-number"><span class="hljs-number">7</span></span>;
+                <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ((value &amp; <span class="hljs-number"><span class="hljs-number">0x80</span></span>) == <span class="hljs-number"><span class="hljs-number">0</span></span>)
+                        <span class="hljs-keyword"><span class="hljs-keyword">break</span></span>;
+        }
+        <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> <span class="hljs-literal"><span class="hljs-literal">result</span></span>;
+}
+</code></pre><br>
+BinProtocolClientEncoder.java:<br>
+<br>
+<pre><code class="hljs aspectj"><span class="hljs-keyword"><span class="hljs-keyword">public</span></span> <span class="hljs-function"><span class="hljs-function">Encoding </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">encodeUint</span></span></span><span class="hljs-params"><span class="hljs-function"><span class="hljs-params">(</span></span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">final</span></span></span></span><span class="hljs-function"><span class="hljs-params"> </span></span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">int</span></span></span></span><span class="hljs-function"><span class="hljs-params"> value)</span></span></span><span class="hljs-function"> </span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">throws</span></span></span><span class="hljs-function"> IOException </span></span>{
+        <span class="hljs-keyword"><span class="hljs-keyword">int</span></span> v = value;
+        <span class="hljs-keyword"><span class="hljs-keyword">while</span></span> (v &gt; <span class="hljs-number"><span class="hljs-number">0x7f</span></span>) {
+                transport.writeByte((<span class="hljs-keyword"><span class="hljs-keyword">byte</span></span>)(<span class="hljs-number"><span class="hljs-number">0x80</span></span>|(v&amp;<span class="hljs-number"><span class="hljs-number">0x7f</span></span>)));
+                v = v &gt;&gt; <span class="hljs-number"><span class="hljs-number">7</span></span>;
+        }
+        transport.writeByte((<span class="hljs-keyword"><span class="hljs-keyword">byte</span></span>)v);
+        <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>;
+}
+</code></pre><br>
+<br>
+<div class="spoiler"><b class="spoiler_title">в том же sdk аналогичный на С++</b><div class="spoiler_text">SidProtocolBinCommon.cpp<br>
+<pre><code class="hljs hsp">Status BinCommon::wr_value(CommandInitiator* thread, const uint&amp; val)
+{
+<span class="hljs-comment"><span class="hljs-comment">//printf("encoding %d %x\n", val, val);</span></span>
+  uint value = val<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">int</span></span>  sz = <span class="hljs-number"><span class="hljs-number">0</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  char buf[(<span class="hljs-number"><span class="hljs-number">32</span></span>+<span class="hljs-number"><span class="hljs-number">7</span></span>)/<span class="hljs-number"><span class="hljs-number">7</span></span>]<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">for</span></span>(<span class="hljs-comment"><span class="hljs-comment">;value&gt;0x7f;value&gt;&gt;=7)</span></span>
+    buf[sz++] = (char)((value&amp;<span class="hljs-number"><span class="hljs-number">0</span></span>x7f)|<span class="hljs-number"><span class="hljs-number">0</span></span>x80)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  buf[sz++]=(char)value<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> (Status) m_transport-&gt;bl_write_bytes(thread, sz, &amp;buf[<span class="hljs-number"><span class="hljs-number">0</span></span>])<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+}
+
+
+Status BinCommon::rd_value(CommandInitiator* thread, uint64&amp; val)
+{
+  val=<span class="hljs-number"><span class="hljs-number">0</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  uchar c<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  uint shift=<span class="hljs-number"><span class="hljs-number">0</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">do</span></span> {
+    <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (rd_uchar(thread, c) != OK) <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> ERR_DECODE<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    val|=((uint64)c&amp;<span class="hljs-number"><span class="hljs-number">0</span></span>x7f)&lt;&lt;shift<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    shift+=<span class="hljs-number"><span class="hljs-number">7</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    <span class="hljs-comment"><span class="hljs-comment">// needed ?</span></span>
+    <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (shift &gt; <span class="hljs-number"><span class="hljs-number">64</span></span> &amp;&amp; c&amp;<span class="hljs-number"><span class="hljs-number">0</span></span>xfe) <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> ERR_DECODE<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  } <span class="hljs-keyword"><span class="hljs-keyword">while</span></span>(c&amp;<span class="hljs-number"><span class="hljs-number">0</span></span>x80)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> OK<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+}
+</code></pre><br>
+</div></div><br>
+<br>
+Так же встречается очень часто числа 40503 и 2654418637 (0x9e3736cd) вместе с xor и смещениями *4.<br>
+<br>
+<div class="spoiler"><b class="spoiler_title">код из IDA</b><div class="spoiler_text"><pre><code class="hljs nimrod"><span class="hljs-built_in"><span class="hljs-built_in">int</span></span> key2index(<span class="hljs-built_in"><span class="hljs-built_in">int</span></span> a1, <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> a2) {  <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> (<span class="hljs-number"><span class="hljs-number">40503</span></span> * ((*a2 &gt;&gt; <span class="hljs-number"><span class="hljs-number">16</span></span>) ^ *a2)) &gt;&gt; <span class="hljs-number"><span class="hljs-number">8</span></span>; }
+
+sint hash_remove(<span class="hljs-built_in"><span class="hljs-built_in">int</span></span> this, <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> value)
+{
+  <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> p0; // edx@<span class="hljs-number"><span class="hljs-number">1</span></span>
+  <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> p; // eax@<span class="hljs-number"><span class="hljs-number">1</span></span>
+  signed <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> <span class="hljs-literal"><span class="hljs-literal">result</span></span>; // eax@<span class="hljs-number"><span class="hljs-number">4</span></span>
+  <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> v5; // ecx@<span class="hljs-number"><span class="hljs-number">6</span></span>
+
+  p0 = this
+     + <span class="hljs-number"><span class="hljs-number">4</span></span>
+     * ((unsigned __int16)(<span class="hljs-number"><span class="hljs-number">40503</span></span>
+                         * (((unsigned <span class="hljs-built_in"><span class="hljs-built_in">int</span></span>)(*(_DWORD *)(value + <span class="hljs-number"><span class="hljs-number">4</span></span>) ^ *(_DWORD *)(value + <span class="hljs-number"><span class="hljs-number">8</span></span>)) &gt;&gt; <span class="hljs-number"><span class="hljs-number">16</span></span>) 
+				^ *(_WORD *)(value + <span class="hljs-number"><span class="hljs-number">4</span></span>) ^ *(_WORD *)(value + <span class="hljs-number"><span class="hljs-number">8</span></span>))) &gt;&gt; <span class="hljs-number"><span class="hljs-number">8</span></span>);
+  p = *(_DWORD *)p0;
+  <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ( *(_DWORD *)p0 )
+  {
+    <span class="hljs-keyword"><span class="hljs-keyword">while</span></span> ( p != value )
+    {
+      p0 = p;
+      p = *(_DWORD *)p;
+      <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ( !p )
+        goto _return_0_loc_81D47CC;
+    }
+    --*(_DWORD *)(this + <span class="hljs-number"><span class="hljs-number">0x400</span></span>);
+    v5 = *(_DWORD *)p;
+    <span class="hljs-literal"><span class="hljs-literal">result</span></span> = <span class="hljs-number"><span class="hljs-number">1</span></span>;
+    *(_DWORD *)p0 = v5;
+  }
+  <span class="hljs-keyword"><span class="hljs-keyword">else</span></span>
+  {
+_return_0_loc_81D47CC:
+    <span class="hljs-literal"><span class="hljs-literal">result</span></span> = <span class="hljs-number"><span class="hljs-number">0</span></span>;
+  }
+  <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> <span class="hljs-literal"><span class="hljs-literal">result</span></span>;
+}
+
+<span class="hljs-built_in"><span class="hljs-built_in">uint</span></span> __usercall sub_find&lt;eax&gt;(<span class="hljs-built_in"><span class="hljs-built_in">int</span></span> *a1&lt;eax&gt;, <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> a2&lt;edx&gt;)
+{
+  <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> v2; // esi@<span class="hljs-number"><span class="hljs-number">1</span></span>
+  <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> v3; // edi@<span class="hljs-number"><span class="hljs-number">1</span></span>
+  <span class="hljs-built_in"><span class="hljs-built_in">uint</span></span> <span class="hljs-literal"><span class="hljs-literal">result</span></span>; // eax@<span class="hljs-number"><span class="hljs-number">1</span></span>
+  <span class="hljs-built_in"><span class="hljs-built_in">int</span></span> i; // ecx@<span class="hljs-number"><span class="hljs-number">1</span></span>
+
+  v2 = *(_DWORD *)(a2 + <span class="hljs-number"><span class="hljs-number">48</span></span>);
+  v3 = *a1;
+  <span class="hljs-literal"><span class="hljs-literal">result</span></span> = (<span class="hljs-built_in"><span class="hljs-built_in">uint</span></span>)(<span class="hljs-number"><span class="hljs-number">2654418637</span></span> * *a1) &gt;&gt; *(_DWORD *)(a2 + <span class="hljs-number"><span class="hljs-number">36</span></span>);
+  <span class="hljs-keyword"><span class="hljs-keyword">for</span></span> ( i = *(_DWORD *)(v2 + <span class="hljs-number"><span class="hljs-number">4</span></span> * <span class="hljs-literal"><span class="hljs-literal">result</span></span>); i != -<span class="hljs-number"><span class="hljs-number">1</span></span>; i = *(_DWORD *)(v2 + <span class="hljs-number"><span class="hljs-number">4</span></span> * <span class="hljs-literal"><span class="hljs-literal">result</span></span>) )
+  {
+    <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ( *(_DWORD *)(*(_DWORD *)(a2 + <span class="hljs-number"><span class="hljs-number">16</span></span>) + <span class="hljs-number"><span class="hljs-number">12</span></span> * i) == v3 )
+      <span class="hljs-keyword"><span class="hljs-keyword">break</span></span>;
+    <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ( (signed <span class="hljs-built_in"><span class="hljs-built_in">int</span></span>)++<span class="hljs-literal"><span class="hljs-literal">result</span></span> &gt;= *(_DWORD *)(a2 + <span class="hljs-number"><span class="hljs-number">32</span></span>) )
+      <span class="hljs-literal"><span class="hljs-literal">result</span></span> = <span class="hljs-number"><span class="hljs-number">0</span></span>;
+  }
+  <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> <span class="hljs-literal"><span class="hljs-literal">result</span></span>;
+}
+</code></pre><br>
+</div></div><br>
+<br>
+Cудя по поиску в Google, числа являются частью <a href="https://www.cs.auckland.ac.nz/~jmor159/PLDS210/niemann/s_has.htm">алгоритмов</a> для построение хеш таблиц:<br>
+<br>
+<blockquote>/* 16-bit index */<br>
+typedef unsigned short int HashIndexType;<br>
+static const HashIndexType K = 40503;<br>
+<br>
+/* 32-bit index */<br>
+typedef unsigned long int HashIndexType;<br>
+static const HashIndexType K = 2654435769 (0x9e3779b9);<br>
+</blockquote><br>
+<br>
+32 битный index немного отличается от используемого в Skype, но заострять свое внимание я на этом не стал.<br>
+<br>
+Немного пропустим сам процесс дальнейшего разбора бинарников, перейдем к результату.<br>
+<br>
+Разобрав всю логику транспортного уровня, а так же немного выше, оказалось, что Skype внутри использует примитив, который называется Attribute. И существует контейнер для хранение списка атрибутов. Сам атрибут может представлять <br>
+из себя один из простых типов.<br>
+<br>
+<pre><code class="hljs crystal"><span class="hljs-class"><span class="hljs-keyword"><span class="hljs-class"><span class="hljs-keyword">enum</span></span></span></span>
+{
+	e_Integer, <span class="hljs-regexp"><span class="hljs-regexp">//</span></span> = <span class="hljs-number"><span class="hljs-number">0</span></span>	<span class="hljs-number"><span class="hljs-number">32</span></span> битное число
+	e_Integer64, <span class="hljs-regexp"><span class="hljs-regexp">//</span></span> = <span class="hljs-number"><span class="hljs-number">1</span></span>	<span class="hljs-number"><span class="hljs-number">64</span></span> битное большое число
+	e_Address, <span class="hljs-regexp"><span class="hljs-regexp">//</span></span> = <span class="hljs-number"><span class="hljs-number">2</span></span>	айпи адрес <span class="hljs-number"><span class="hljs-number">32</span></span> число +порт <span class="hljs-number"><span class="hljs-number">16</span></span> число
+	e_String, <span class="hljs-regexp"><span class="hljs-regexp">//</span></span> = <span class="hljs-number"><span class="hljs-number">3</span></span>	строка, Н количества байт заканчивающаяся нулем
+	e_Rawdata, <span class="hljs-regexp"><span class="hljs-regexp">//</span></span> = <span class="hljs-number"><span class="hljs-number">4</span></span>	бинарные данные
+	e_Container, <span class="hljs-regexp"><span class="hljs-regexp">//</span></span> = <span class="hljs-number"><span class="hljs-number">5</span></span>	вложенный контейнер
+	e_IntegerArray, <span class="hljs-regexp"><span class="hljs-regexp">//</span></span> = <span class="hljs-number"><span class="hljs-number">6</span></span>	массив <span class="hljs-number"><span class="hljs-number">32</span></span> битных чисел
+};
+</code></pre><br>
+В контейнере осуществляется сериализация/десериализация атрибутов. Большинство целых чисел упаковываются/распаковываются по алгоритму упаковки чисел, описанных выше encodeUint/decodeUint. Остальные данные копируются как есть.<br>
+<br>
+Такой тип контейнера видимо занимал большой размер на выходе после сериализации и спустя 0.9 версии Skype уже в 1.0.x версии был добавлен режим упаковки атрибутов вместо сериализации. Упаковка представляет из себя обычный <a href="http://www.arturocampos.com/ac_range.html">range_coder</a> арифметическое кодирование. Где алгоритм скопирован один в один по ссылке, за исключением того, что частоты для кодера забиты в Skype статически.<br>
+<br>
+<div class="spoiler"><b class="spoiler_title">encoderRenormalize, код из IDA</b><div class="spoiler_text"><pre><code class="hljs xl">void encoderRenormalize(range_coder *this)
+{
+  unsigned int _valfield_4; <span class="hljs-comment"><span class="hljs-comment">// edx@2</span></span>
+  unsigned int _infield_8; <span class="hljs-comment"><span class="hljs-comment">// ecx@7</span></span>
+  char countv3; <span class="hljs-comment"><span class="hljs-comment">// zf@9</span></span>
+
+  <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">if</span></span></span><span class="hljs-function"> ( this-&gt;</span></span>Range &lt;= <span class="hljs-number"><span class="hljs-number">0</span></span>x800000 )
+  {
+    <span class="hljs-keyword"><span class="hljs-keyword">do</span></span>
+    {
+      _<span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">valfield_4</span></span></span><span class="hljs-function"> = this-&gt;</span></span>Low;
+      <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ( _valfield_4 &gt; ~<span class="hljs-number"><span class="hljs-number">0</span></span>x80800000 )
+      {
+        <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ( (signed int)_valfield_4 &gt;= <span class="hljs-number"><span class="hljs-number">0</span></span> )
+        {
+          ++<span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">this</span></span></span><span class="hljs-function">-&gt;</span></span>Help;
+          goto LABEL_7;
+        }
+        <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">this</span></span></span><span class="hljs-function">-&gt;</span></span><span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">vtbl</span></span></span><span class="hljs-function">-&gt;</span></span><span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">output</span></span></span><span class="hljs-function">(this, this-&gt;</span></span>Buffer + <span class="hljs-number"><span class="hljs-number">1</span></span>);
+        <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">if</span></span></span><span class="hljs-function"> ( this-&gt;</span></span>Help )
+        {
+          <span class="hljs-keyword"><span class="hljs-keyword">do</span></span>
+          {
+            <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">this</span></span></span><span class="hljs-function">-&gt;</span></span><span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">vtbl</span></span></span><span class="hljs-function">-&gt;</span></span>output(this, <span class="hljs-number"><span class="hljs-number">0</span></span>);
+            <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">countv3</span></span></span><span class="hljs-function"> = this-&gt;</span></span>Help-- == <span class="hljs-number"><span class="hljs-number">1</span></span>;
+          }
+          <span class="hljs-keyword"><span class="hljs-keyword">while</span></span> ( !countv3 );
+        }
+      }
+      <span class="hljs-keyword"><span class="hljs-keyword">else</span></span>
+      {
+        <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">if</span></span></span><span class="hljs-function"> ( this-&gt;</span></span>Start )
+          <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">this</span></span></span><span class="hljs-function">-&gt;</span></span>Start = <span class="hljs-number"><span class="hljs-number">0</span></span>;
+        <span class="hljs-keyword"><span class="hljs-keyword">else</span></span>
+          <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">this</span></span></span><span class="hljs-function">-&gt;</span></span><span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">vtbl</span></span></span><span class="hljs-function">-&gt;</span></span><span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">output</span></span></span><span class="hljs-function">(this, this-&gt;</span></span>Buffer);
+        <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">if</span></span></span><span class="hljs-function"> ( this-&gt;</span></span>Help )
+        {
+          <span class="hljs-keyword"><span class="hljs-keyword">do</span></span>
+          {
+            <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">this</span></span></span><span class="hljs-function">-&gt;</span></span><span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">vtbl</span></span></span><span class="hljs-function">-&gt;</span></span>output(this, <span class="hljs-number"><span class="hljs-number">255</span></span>u);
+            <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">countv3</span></span></span><span class="hljs-function"> = this-&gt;</span></span>Help-- == <span class="hljs-number"><span class="hljs-number">1</span></span>;
+          }
+          <span class="hljs-keyword"><span class="hljs-keyword">while</span></span> ( !countv3 );
+        }
+      }
+      _<span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">valfield_4</span></span></span><span class="hljs-function"> = this-&gt;</span></span>Low;
+      <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">this</span></span></span><span class="hljs-function">-&gt;</span></span>B<span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">uffer</span></span></span><span class="hljs-function"> = this-&gt;</span></span>Low &gt;&gt; <span class="hljs-number"><span class="hljs-number">23</span></span>;
+LABEL_7:
+      _<span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">infield_8</span></span></span><span class="hljs-function"> = this-&gt;</span></span>Range;
+      <span class="hljs-function"><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">this</span></span></span><span class="hljs-function">-&gt;</span></span>Low = (_valfield_4 <span class="hljs-string"><span class="hljs-string">&lt;&lt; 8) &amp; ~0x80000000;
+      _infield_8 &lt;&lt;= 8;
+      this-&gt;Range = _infield_8;
+    }
+    while ( _infield_8 &lt;= 0x800000 );
+  }
+}
+</span></span></code></pre><br>
+</div></div><br>
+<div class="spoiler"><b class="spoiler_title">decoderRenormalize, код из IDA</b><div class="spoiler_text"><pre><code class="hljs cs"><span class="hljs-function"><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-keyword">void</span></span></span><span class="hljs-function"> </span><span class="hljs-title"><span class="hljs-function"><span class="hljs-title">decoderRenormalize</span></span></span><span class="hljs-function">(</span><span class="hljs-params"><span class="hljs-function"><span class="hljs-params">range_roder *</span></span><span class="hljs-keyword"><span class="hljs-function"><span class="hljs-params"><span class="hljs-keyword">this</span></span></span></span></span><span class="hljs-function">)
+</span></span>{
+  _range_roder_vtbl *v1; <span class="hljs-comment"><span class="hljs-comment">// eax@3</span></span>
+  unsigned __int8 <span class="hljs-keyword"><span class="hljs-keyword">value</span></span>; <span class="hljs-comment"><span class="hljs-comment">// al@3</span></span>
+  unsigned <span class="hljs-keyword"><span class="hljs-keyword">int</span></span> v3; <span class="hljs-comment"><span class="hljs-comment">// edx@3</span></span>
+
+  <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ( <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;Range &lt;= <span class="hljs-number"><span class="hljs-number">0x800000</span></span> )
+  {
+    <span class="hljs-keyword"><span class="hljs-keyword">do</span></span>
+    {
+      v1 = <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;vtbl;
+      <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;Low = (unsigned __int8)(<span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;Buffer &lt;&lt; <span class="hljs-number"><span class="hljs-number">7</span></span>) | (<span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;Low &lt;&lt; <span class="hljs-number"><span class="hljs-number">8</span></span>);
+      <span class="hljs-keyword"><span class="hljs-keyword">value</span></span> = v1-&gt;input((<span class="hljs-keyword"><span class="hljs-keyword">int</span></span>)<span class="hljs-keyword"><span class="hljs-keyword">this</span></span>);
+      <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;Buffer = <span class="hljs-keyword"><span class="hljs-keyword">value</span></span>;
+      <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;Low |= <span class="hljs-keyword"><span class="hljs-keyword">value</span></span> &gt;&gt; <span class="hljs-number"><span class="hljs-number">1</span></span>;
+      v3 = <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;Range &lt;&lt; <span class="hljs-number"><span class="hljs-number">8</span></span>;
+      <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;Range = v3;
+    }
+    <span class="hljs-keyword"><span class="hljs-keyword">while</span></span> ( v3 &lt;= <span class="hljs-number"><span class="hljs-number">0x800000</span></span> );
+  }
+}
+</code></pre><br>
+</div></div><br>
+Разбор FELayer показал, этот layer использует только TCP для взаимодействия. Одно из назначения данного модуля — это обеспечение транспортного уровня:<br>
+ — при регистрация или входа в сеть skype;<br>
+ — звонках (выполняет сигнализацию, так же как SIP или h323 в voip);<br>
+ — пересылке файлов;<br>
+ — и в первых версиях skype передача аудио over TCP?<br>
+<br>
+Формат данных такой:<br>
+<br>
+<pre><code class="hljs mipsasm">struct fe_header
+{
+	<span class="hljs-keyword"><span class="hljs-keyword">byte </span></span>type<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+	<span class="hljs-keyword"><span class="hljs-keyword">byte </span></span>v_hi<span class="hljs-comment"><span class="hljs-comment">; // всегда = 3</span></span>
+	<span class="hljs-keyword"><span class="hljs-keyword">byte </span></span>v_lo<span class="hljs-comment"><span class="hljs-comment">; // всегда = 1</span></span>
+	word len<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+}<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+</code></pre><br>
+fe_header + опционально сереализированые атрибуты + опционально пользовательские данные.<br>
+<br>
+Те данные, что помечены опционально, могут опционально сверху шифроваться aes и rc4. Layer пытается строить из себя некий SSL, хотя таковым, конечно, не является.<br>
+<br>
+<blockquote>«FELayer: TCP: %s Received packet with unknown SSL version (%u.%u)\n»<br>
+</blockquote><br>
+<br>
+Обмен rsa ключами aes salt + дополнительная информация передается в атрибутах, помеченных опционально. При разборе обнаружено четыре типа пакетов для данного layer-a. Это type=20, type=21, type=22 и type=23.<br>
+<br>
+type=20 — это userpacket c aes256, устарел, больше не используется.<br>
+type=21 — это userpacket без aes256, устарел, в первых версиях Skype использовался для передачи RTP.<br>
+<br>
+Несмотря на то, что пакеты этого типа не используются, функционал приема и разбора этих типов оставлен в обработчике FELayer-а.<br>
+<br>
+type=22<br>
+как ping — с одним лишь заголовком, без данных<br>
+и как handsnake — с добавленными атрибутами(8,9,11,12) в которых содержатся данные rsapub ключей, <br>
+salt и доп инфо<br>
+<br>
+type=23<br>
+как keepalive — с заголовком, без данных.<br>
+и как datapacket — если в себе содержит еще и данные, внутри которых данные модулей верхних уровней.<br>
+<br>
+На этапе первичного TCP соединения происходит обмен ключами по Diffie-Hellman алгоритму. В дальнейшем ключ будет использоваться в rc4 алгоритме шифрования.<br>
+<br>
+Существует ситуация, когда обмен ключами Diffie-Hellman может закончиться неудачей, в таком случае rc4 для шифрования использоваться не будет. Не беда, есть еще aes.<br>
+<br>
+Сам aes почти стандартный обычный aes256 ctr/cm, где index для него является uint64 разрядным.<br>
+<br>
+<div class="spoiler"><b class="spoiler_title">код из IDA</b><div class="spoiler_text"><pre><code class="hljs hsp">void userpacket_crypto_encrypt(userpacket_crypto *this, uchar *ptr, uint len, uint64 index, uint nullkey, uint salt)
+{
+  uint count<span class="hljs-comment"><span class="hljs-comment">; // esi@3</span></span>
+  uchar *pdata<span class="hljs-comment"><span class="hljs-comment">; // ebx@5</span></span>
+  uint _j_<span class="hljs-comment"><span class="hljs-comment">; // edi@7</span></span>
+  uint seq<span class="hljs-comment"><span class="hljs-comment">; // [sp+18h] [bp-134h]@6</span></span>
+  uchar *aesks<span class="hljs-comment"><span class="hljs-comment">; // [sp+1Ch] [bp-130h]@1</span></span>
+  uint block[<span class="hljs-number"><span class="hljs-number">4</span></span>]<span class="hljs-comment"><span class="hljs-comment">; // [sp+20h] [bp-12Ch]@7</span></span>
+  uchar zerov11[<span class="hljs-number"><span class="hljs-number">32</span></span>]<span class="hljs-comment"><span class="hljs-comment">; // [sp+30h] [bp-11Ch]@2</span></span>
+  uchar keyv15[<span class="hljs-number"><span class="hljs-number">240</span></span>]<span class="hljs-comment"><span class="hljs-comment">; // [sp+50h] [bp-FCh]@2</span></span>
+
+  aesks = this-&gt;Key<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (nullkey)
+  {
+    <span class="hljs-keyword"><span class="hljs-keyword">memset</span></span>(zerov11, <span class="hljs-number"><span class="hljs-number">0</span></span>, sizeof(zerov11))<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    rijndaelKeySched(zerov11, keyv15)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    salt = <span class="hljs-number"><span class="hljs-number">0</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    aesks = keyv15<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  }
+
+  count = len<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (len &gt; <span class="hljs-number"><span class="hljs-number">1048576</span></span>)
+    count = <span class="hljs-number"><span class="hljs-number">1048576</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  pdata = ptr<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (count)
+  {
+    seq = <span class="hljs-number"><span class="hljs-number">0</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+_loop2_aes_loc:
+    block[<span class="hljs-number"><span class="hljs-number">0</span></span>] = salt<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    block[<span class="hljs-number"><span class="hljs-number">1</span></span>] = salt<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    block[<span class="hljs-number"><span class="hljs-number">2</span></span>] = index &gt;&gt; <span class="hljs-number"><span class="hljs-number">16</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    block[<span class="hljs-number"><span class="hljs-number">3</span></span>] = ((_DWORD)index &lt;&lt; <span class="hljs-number"><span class="hljs-number">16</span></span>) + seq<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    rijndaelEncrypt((<span class="hljs-keyword"><span class="hljs-keyword">int</span></span> *)block, (<span class="hljs-keyword"><span class="hljs-keyword">int</span></span> *)aesks)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    _j_ = <span class="hljs-number"><span class="hljs-number">0</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    <span class="hljs-keyword"><span class="hljs-keyword">while</span></span> (_j_ != count)
+    {
+      pdata[_j_] ^= block[_j_ &gt;&gt; <span class="hljs-number"><span class="hljs-number">2</span></span>] &gt;&gt; (<span class="hljs-number"><span class="hljs-number">24</span></span> - <span class="hljs-number"><span class="hljs-number">8</span></span> * (_j_ &amp; <span class="hljs-number"><span class="hljs-number">3</span></span>))<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+      <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (++_j_ &gt; <span class="hljs-number"><span class="hljs-number">15</span></span>)
+      {
+        ++seq<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+        count -= <span class="hljs-number"><span class="hljs-number">16</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+        pdata += <span class="hljs-number"><span class="hljs-number">16</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+        <span class="hljs-keyword"><span class="hljs-keyword">goto</span></span> _loop2_aes_loc<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+      }
+    }
+  }
+}
+</code></pre><br>
+</div></div><br>
+В конце данных после шифрования дописывается слово(word) два байта. Которое является результатом xor двух слов(word) crc32(данных) ^ index.<br>
+<br>
+<div class="spoiler"><b class="spoiler_title">код из IDA</b><div class="spoiler_text"><pre><code class="hljs x86asm">void userpacket_crypto_finish(uint64 index, char *<span class="hljs-built_in"><span class="hljs-built_in">ptr</span></span>, <span class="hljs-keyword"><span class="hljs-keyword">int</span></span> len)
+{
+  <span class="hljs-keyword"><span class="hljs-keyword">int</span></span> res<span class="hljs-comment"><span class="hljs-comment">; // r4@1</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">int</span></span> <span class="hljs-keyword"><span class="hljs-keyword">crc32</span></span><span class="hljs-comment"><span class="hljs-comment">; // [sp+4h] [bp-20h]@1</span></span>
+
+  <span class="hljs-keyword"><span class="hljs-keyword">crc32</span></span> = -<span class="hljs-number"><span class="hljs-number">1</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">CRC32</span></span>(&amp;<span class="hljs-keyword"><span class="hljs-keyword">crc32</span></span>, <span class="hljs-built_in"><span class="hljs-built_in">ptr</span></span>, len)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  res = (index ^ <span class="hljs-keyword"><span class="hljs-keyword">crc32</span></span>) &amp; <span class="hljs-number"><span class="hljs-number">0xFFFF</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-built_in"><span class="hljs-built_in">ptr</span></span>[len] = res &amp; <span class="hljs-number"><span class="hljs-number">0xffff</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-built_in"><span class="hljs-built_in">ptr</span></span>[len + <span class="hljs-number"><span class="hljs-number">1</span></span>] = res &gt;&gt; <span class="hljs-number"><span class="hljs-number">8</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+}
+</code></pre><br>
+</div></div><br>
+Вот как? Интересно, как же index восстанавливается на принимающей стороне? Немного разобрав алго, видно, что индекс на передающей стороне имеет разрядность uint64, но увеличивается только до 48 бит, index &amp; 0xffffffffffff.<br>
+<br>
+<div class="spoiler"><b class="spoiler_title">код из IDA</b><div class="spoiler_text"><pre><code class="hljs vala"><span class="hljs-keyword"><span class="hljs-keyword">uint64</span></span> userpacket_crypto_get_send_index(userpacket_crypto *<span class="hljs-keyword"><span class="hljs-keyword">this</span></span>)
+{
+  <span class="hljs-keyword"><span class="hljs-keyword">uint64</span></span> res; <span class="hljs-comment"><span class="hljs-comment">// r8@1</span></span>
+
+  res = <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;SendIndex;
+  <span class="hljs-keyword"><span class="hljs-keyword">this</span></span>-&gt;SendIndex = res &amp; <span class="hljs-number"><span class="hljs-number">0xFFFFFFFFFFFF</span></span>LL;
+  <span class="hljs-keyword"><span class="hljs-keyword">return</span></span> res;
+}
+</code></pre><br>
+</div></div><br>
+А передается только младшая часть 16 бит 0xffff, исходя их функции userpacket_crypt_finish.<br>
+<br>
+Оказывается, на принимающей стороне index восстанавливается опять до uint64 по известному алгоритму, который используется в <a href="http://www.cisco.com/web/about/security/intelligence/securing-voip.html">srtp</a> — смотрите «Algorithm 1».<br>
+<br>
+Код взят из листинга IDA, очевидно, поработал оптимизатор компилятора.<br>
+<br>
+<div class="spoiler"><b class="spoiler_title">код из IDA</b><div class="spoiler_text"><pre><code class="hljs bash">uint64 userpacket_crypto_recv_index(unsigned short <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index)
+{
+	<span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (LoIndex &amp; 32768)
+	{
+		<span class="hljs-keyword"><span class="hljs-keyword">if</span></span> ((LoIndex - 32768) &lt;= <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index &amp;&amp; LoIndex &gt;= <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index)
+			<span class="hljs-built_in"><span class="hljs-built_in">return</span></span> <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index + (HiIndex&lt;&lt;16);
+
+		HiIndex= (HiIndex &gt;= -1) ? 0 : HiIndex+1;
+		LoIndex = <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index;
+
+		<span class="hljs-built_in"><span class="hljs-built_in">return</span></span> <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index + (HiIndex&lt;&lt;16);
+	}
+
+	<span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (<span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index &lt;= LoIndex || (<span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index - LoIndex) &lt;= 32768)
+	{
+		<span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (LoIndex &lt; <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index) LoIndex = <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index;
+		<span class="hljs-built_in"><span class="hljs-built_in">return</span></span> <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index + (HiIndex &lt;&lt; 16);
+	}
+
+	<span class="hljs-built_in"><span class="hljs-built_in">return</span></span> <span class="hljs-keyword"><span class="hljs-keyword">in</span></span>_index + (( (HiIV-1)&gt;&gt;32|(HiIV-1) )&lt;&lt;16);
+}
+</code></pre><br>
+</div></div><br>
+Весь этот класс объекта для работы с aes256 называется userpacket_crypto. В него так же входит процедура генерации ключа, и некоторые другие функци криптографии.<br>
+<br>
+Теперь рассмотрим CommLayer. Как оказалось, после разбора этот леер работает и поверх TCP и поверх UDP. В TCP транспорте на этапе соединения он как и FELayer использует алгоритм Diffie-Hellman, ключи которого будут использоваться… в rc4 обфускаторе! <br>
+<br>
+Но об этом позже.<br>
+<br>
+Назначений у CommLayer несколько:<br>
+ — обмен командами;<br>
+ — обмен userpacket_crypto;<br>
+ — обмен udp raw данными в обход всего CommLayer.<br>
+<br>
+Так же CommLayer имеет свой уровень транзакции. Номер отправляемого, принимаемого пакета.<br>
+<br>
+Команды CommLayer представляют из себя некоторый мини заголовок с нескольких байт. В которых кодируется тип команды + опционально SeqNum, дальше команда дополняется сериализироваными атрибутами с контейнера. Команды могут быть с подтверждением доставки. Без подтверждений, Ответами на запрос, и т.д. CommLayer один, но используется многими модулями. <br>
+<br>
+Как же команды определяются, куда какому модулю? Это отдельной процедурой регистрации команды на каждый модуль. Да-да, каждый модуль может зарегистрировать свои номера команд в общем CommLayer, а выставляя SeqNum в отправляемой команде можно эмулировать некоторый режим транзакции. А самих модулей, использующих команды, очень много — Localnode, Firewall, replay_manager_t, BroadcastChannelManager и т.д.<br>
+<br>
+Так же в отправляемой команде в CommLayer в очередь на отправку можно:<br>
+ — задать время таймаута;<br>
+ — сетевой адрес;<br>
+ — транспорт тип UDP/TCP;<br>
+ — подписать свой ReplyListener callback класс, который сработает, если команда ожидает ответа.<br>
+И так далее.<br>
+<br>
+В чем различия ReplyListener от процедуры регистрации команды в CommLayer? В том, что регистрацию создает CommanListener, он только ожидает прием команд и может отвечать, а ReplyListener получает ответы на свои запросы. Вроде разобрались.<br>
+<br>
+Обмен userpacket_crypto — это все тот же рассмотренный aes256 ctr/cm c uint64 индексом. Он используется в session_manager_t для отправки своих команд, которые тоже имеют свой layer упаковки и транзакций. Туда входит построение релей соединений, обмен сообщениями(чат), и т.д.<br>
+<br>
+Для обмена RTP Audio/Video, в отличии от первых версий, Skype изменил подход. В первых версиях, когда еще не было видео, но был звук, RTP передавался в userpacket_crypto, добавляя заголовок самого CommLayer для идентификации пакетов. Так же RTP могло передаваться и через FELayer поверх TCP. Позже был изменен этот алгоритм и RTP Audio/Video принимаются и передаются сразу в UDP сокет. Да, все так же шифруются в userpacket_crypto, но не добавляется CommLayer заголовок. По видимому, это создавало накладные расходы на при очень большом потоке данных, отслеживая еще и транзакции самого CommLayer. А в последующий версиях к RTP был добавлен FEC.<br>
+<br>
+Основные типы пакетов в CommLayer TCP, session_header, ack, end_session, keepalive, req_obfuscation UDP транспорт приблизительно такой же, как и TCP, за исключением того, что там не используется Diffie-Hellman и добавлена возможность отправки больших пакетов фрагментами. При не получении одного из фрагментов протокол запросит не дошедшие пакеты повторно. Так же CommLayer умеет менять на лету режим обфускации. <br>
+<br>
+Обфускация в Skype — это обычный RC4 алгоритм, но с замусоренной перестановкой ключа до его установки в RC4.<br>
+<br>
+<div class="spoiler"><b class="spoiler_title">код из IDA</b><div class="spoiler_text"><pre><code class="hljs hsp">void  Obfuscator_Init(<span class="hljs-keyword"><span class="hljs-keyword">int</span></span> this, uint seed, uint mode, uchar *keystr, uint keylen)
+{
+  uint i<span class="hljs-comment"><span class="hljs-comment">; // ecx@9</span></span>
+  uint v8<span class="hljs-comment"><span class="hljs-comment">; // dl@11</span></span>
+  uint v9<span class="hljs-comment"><span class="hljs-comment">; // al@11</span></span>
+  uchar key[<span class="hljs-number"><span class="hljs-number">80</span></span>]<span class="hljs-comment"><span class="hljs-comment">; // [sp+14h] [bp-64h]@4</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">int</span></span> v11<span class="hljs-comment"><span class="hljs-comment">; // [sp+64h] [bp-14h]@5</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">int</span></span> v12<span class="hljs-comment"><span class="hljs-comment">; // [sp+68h] [bp-10h]@5</span></span>
+
+  <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (!mode)
+    mode = <span class="hljs-number"><span class="hljs-number">1</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  i = <span class="hljs-number"><span class="hljs-number">0</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">do</span></span>
+    *&amp;key[<span class="hljs-number"><span class="hljs-number">4</span></span> * i++] = seed<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">while</span></span> (i != <span class="hljs-number"><span class="hljs-number">20</span></span>)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+
+  <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (mode_&amp; <span class="hljs-number"><span class="hljs-number">1</span></span>) Obf_0(key, seed)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (mode &amp; <span class="hljs-number"><span class="hljs-number">2</span></span>) Obf_1(key, seed)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+
+  <span class="hljs-keyword"><span class="hljs-keyword">for</span></span> (i = <span class="hljs-number"><span class="hljs-number">0</span></span><span class="hljs-comment"><span class="hljs-comment">; ; key[i - 1] ^= keystr[i-1])</span></span>
+  {
+    v8 = i &lt;= <span class="hljs-number"><span class="hljs-number">79</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    v9 = i++ &lt; keylen<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+    <span class="hljs-keyword"><span class="hljs-keyword">if</span></span> (!(v8 &amp; v9))
+      <span class="hljs-keyword"><span class="hljs-keyword">break</span></span><span class="hljs-comment"><span class="hljs-comment">;</span></span>
+  }
+  ARC4::SetKey(this, key, <span class="hljs-number"><span class="hljs-number">80</span></span>)<span class="hljs-comment"><span class="hljs-comment">;</span></span>
+}
+</code></pre><br>
+</div></div><br>
+Обфускатор находится в функциях Obf_0, Obf_1. Сами функции из себя представляют побитовые сдвиги, xor-ы и в разных вариациях. Так же их код по возможности запутан, чтобы его невозможно было разобрать даже используя реверс-инжиниринг.<br>
+<br>
+Основные данные для обфускатора — это seed, режим и ключ, полученный от Diffie-Hellman. Для поддержки обфускации в протоколе CommLayer оставлено двойное слово 0xffffffff, каждый бит — это один из режимов. Итого, обфускация допускает без изменения протокола Skype до 32 режимов в разных вариациях смешивания. На практике больше 2 режимов не используется. <br>
+<br>
+В некоторых Skype модулях удалось обнаружить 4 режима обфускации. Это 0xf байт, но в большинстве это 0x3 значение. Т.е. не больше 2 режимов. После инициализации в протоколе CommLayer пиры обмениваются запрос-ответами, чтобы договорится, в каком режиме обфускации будут осуществлять обмен. Каждый из пиров отправляет SupportedMode и RequiredMode.<br>
+<br>
+SupportedMode определяет константы, которые раньше в Skype были статической переменной и легко находились ссылкам в дизассемблере, о том, в какой именно функции используется данная константа. В современном Skype то ли оптимизатор компилятора пошалил, то ли константа замена на define SupportedMode, тем самым превратившись в обычное число в <br>
+дизассемблере. Найти все ссылки не так просто, если до этого не знать всех мест размещения. Соответственно SupportedMode показывает, с каким количеством обфускаций скомпилирован обфускатор.<br>
+<br>
+<h4>Эволюция skype</h4><br>
+Периодически посматриваю внутрь Skype. С 2003 года очень много чего изменилось, но транспортный FELayer и CommLayer остались почти такими, как и прежде. Многие модули так же не очень сильно изменились, зато мутация кода выросла, появилось много абстрактных интерфейсов, что породило множество виртуальных функций. Претерпел изменения сам Backbone, обработку модулей переносили то туда, то сюда. В итоге был создан модуль BareBackbone, в котором осуществляется обработка модулей. Из главного потока Backbone она была вынесена, видимо, сказывалась латентность главного потока, который еще и сетевой частью занимается. Оптимизируются aes/rc4/bignum алгоритмы.<br>
+<br>
+Изучая найденные клиенты KaZaA и скачанные модули с сайта Joltid, удалось понять и увидеть глазами реверс инженера с чего начинался Skype. Cвоя реализация bignum, rsa, обфускация rc4, транспортный уровень работы сетью, хеши, списки и т.д. Все очень по простому и компактно. Сейчас таких программ нет, обилие boost, stl, openssl, программы превращаются <br>
+в монстров.<br>
+<br>
+Изучая gift-FastTracker, оказалось что ребята в лихие 2000 смогли разреверсить rsa-bignum от KaZaA (использующийся и в Skype), тогда, правда, он был попроще и у них не было современного арсенала ida+hexrays. Если сравнивать, то современный bignum от Skype сильно оброс оптимизациями под разные платформы. Так же ребятам из FastTrack удалось разреверсить 4 режима обфускации.<br>
+<br>
+<h4>Заключение</h4><br>
+Наверное, если снять эти два транспортных уровня, то Skype уже не будет выглядеть как Skype. Более скучен для секьюрити ресерча, менее криптографичен. Поэтому, как минимум, этот сетевой слой делает Skype таким уникальным, какой он есть.<br>
+<br>
+При реверс инжиниринге не использовался отладчик. Я ни разу не запускал Skype для отладки и не снимал дампы пакетов для анализа. Все было сделано статическим анализом ida+hexrays. И это основное отличие от проведенных до этого анализов skype-протокола, которое, я считаю, дает больше информации в понимании как устроена сетевая часть.
+</div>
+</div>
+</div>
+</article>
+</div>
+</section>
+</div>
+</div>
+</div>
+
+</body>
+</html>
